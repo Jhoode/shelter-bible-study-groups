@@ -1,0 +1,690 @@
+```html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Shelter Bible Study Group Assignment</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%); color: white; padding: 40px 30px; text-align: center; border-bottom: 4px solid #d69e2e; }
+        .header h1 { font-size: 2.2em; margin-bottom: 10px; font-weight: 700; }
+        .header p { font-size: 1.1em; opacity: 0.95; font-style: italic; }
+        .content { padding: 40px; }
+        .success-message { display: none; background: #38a169; color: white; padding: 18px 25px; border-radius: 10px; margin-bottom: 25px; font-weight: 600; font-size: 1.1em; text-align: center; animation: slideIn 0.5s ease; box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3); }
+        .success-message.show { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .input-section h2 { color: #2d3748; margin-bottom: 25px; font-size: 1.6em; border-bottom: 3px solid #d69e2e; padding-bottom: 10px; }
+        .form-group { margin-bottom: 22px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #4a5568; font-weight: 600; font-size: 1em; }
+        .form-group input { width: 100%; padding: 14px 16px; border: 2px solid #cbd5e0; border-radius: 8px; font-size: 1em; transition: all 0.3s; background: #f7fafc; }
+        .form-group input:focus { outline: none; border-color: #2c5282; box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1); background: white; }
+        .input-hint { font-size: 0.85em; color: #718096; margin-top: 6px; font-style: italic; }
+        .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%); color: white; border: none; border-radius: 10px; font-size: 1.15em; font-weight: 700; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(44, 82, 130, 0.4); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .group-display { display: none; background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%); color: white; padding: 30px; border-radius: 12px; margin-top: 25px; animation: fadeIn 0.6s ease; box-shadow: 0 8px 24px rgba(44, 82, 130, 0.3); }
+        .group-display.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .group-display h3 { font-size: 2em; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #d69e2e; padding-bottom: 15px; }
+        .group-info { background: rgba(255, 255, 255, 0.15); padding: 25px; border-radius: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .group-info p { font-size: 1.15em; margin-bottom: 12px; line-height: 1.7; }
+        .group-info strong { font-weight: 700; color: #fbd38d; }
+        .group-assignment-statement { font-size: 1.5em; color: #fbd38d; font-weight: 800; text-align: center; margin: 25px 0; padding: 20px; background: rgba(251, 211, 141, 0.2); border-radius: 10px; border: 2px solid #fbd38d; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+        .members-list { margin-top: 25px; padding-top: 20px; border-top: 2px solid rgba(255, 255, 255, 0.3); }
+        .members-list h4 { font-size: 1.3em; margin-bottom: 15px; color: #fbd38d; }
+        .member-item { background: rgba(255, 255, 255, 0.2); padding: 12px 16px; border-radius: 6px; margin-bottom: 10px; font-size: 1em; border-left: 4px solid #d69e2e; }
+        .add-another-btn { width: 100%; padding: 14px; background: white; color: #2c5282; border: 2px solid white; border-radius: 8px; font-size: 1.05em; font-weight: 700; cursor: pointer; margin-top: 20px; transition: all 0.3s; text-transform: uppercase; }
+        .add-another-btn:hover { background: #fbd38d; color: #2d3748; }
+        #map { height: 500px; width: 100%; border-radius: 10px; margin-top: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .map-section { margin-top: 40px; padding-top: 30px; border-top: 3px solid #e2e8f0; }
+        .map-section h3 { color: #2d3748; margin-bottom: 20px; font-size: 1.7em; text-align: center; }
+        .all-groups { margin-top: 50px; padding-top: 35px; border-top: 3px solid #e2e8f0; }
+        .all-groups h3 { color: #2d3748; margin-bottom: 25px; font-size: 1.7em; text-align: center; }
+        .group-card { background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); border: 2px solid #cbd5e0; border-radius: 10px; padding: 25px; margin-bottom: 20px; transition: all 0.3s; }
+        .group-card:hover { border-color: #2c5282; box-shadow: 0 6px 20px rgba(44, 82, 130, 0.15); transform: translateY(-2px); }
+        .group-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 15px; border-bottom: 2px solid #d69e2e; }
+        .group-title { font-size: 1.4em; color: #2c5282; font-weight: 700; }
+        .group-count { background: #2c5282; color: white; padding: 8px 18px; border-radius: 25px; font-weight: 700; font-size: 0.95em; }
+        .group-members { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+        .group-member { background: white; padding: 12px 14px; border-radius: 6px; font-size: 0.95em; border-left: 3px solid #d69e2e; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .location-info { background: #edf2f7; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.9em; color: #4a5568; }
+        .loading-spinner { display: none; text-align: center; padding: 10px; color: #2c5282; }
+        .loading-spinner.show { display: block; }
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #2c5282; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .export-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border: 2px solid #cbd5e0;
+        }
+
+        .export-section h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #d69e2e;
+            padding-bottom: 10px;
+        }
+
+        .export-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .export-btn {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .export-btn:hover {
+            background: linear-gradient(135deg, #2f855a 0%, #276749 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(47, 133, 90, 0.4);
+        }
+
+        .export-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✝️ The Shelter Bible Study</h1>
+            <p>Group Assignment - Illinois Region</p>
+        </div>
+        <div class="content">
+            <div class="success-message" id="successMessage">✅ Information Saved Successfully!</div>
+            <div class="input-section">
+                <h2>📝 Enter Your Information</h2>
+                <form id="userForm">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" required placeholder="Enter your first name">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" required placeholder="Enter your last name">
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location (Illinois)</label>
+                        <input type="text" id="location" required placeholder="e.g., 123 Main St, Chicago, IL 60402">
+                        <div class="input-hint">Please include your complete Illinois address with ZIP code</div>
+                    </div>
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner"></div>
+                        <p>Geocoding your location...</p>
+                    </div>
+                    <button type="submit" class="submit-btn" id="submitBtn">🙏 Submit & Find My Group</button>
+                </form>
+            </div>
+            <div class="group-display" id="groupDisplay">
+                <h3>🎉 Your Assigned Group</h3>
+                <div class="group-info">
+                    <p><strong>Name:</strong> <span id="displayName"></span></p>
+                    <p><strong>Location:</strong> <span id="displayLocation"></span></p>
+                    <p><strong>ZIP Code:</strong> <span id="displayZip"></span></p>
+                    <div class="group-assignment-statement">Your group is '<span id="displayGroup"></span>'</div>
+                    <div class="members-list">
+                        <h4>👥 Your Group Members:</h4>
+                        <div id="membersContainer"></div>
+                    </div>
+                </div>
+                <button class="add-another-btn" onclick="addAnother()">➕ Add Another Person</button>
+            </div>
+            <div class="map-section" id="mapSection" style="display: none;">
+                <h3>🗺️ Group Locations Map</h3>
+                <div id="map"></div>
+            </div>
+            <div class="all-groups" id="allGroups" style="display: none;">
+                <h3>📊 All Bible Study Groups</h3>
+                <div class="export-section" id="exportSection" style="display: none;">
+    <h3>💾 Export Group Data</h3>
+    <p style="margin-bottom: 20px; color: #4a5568;">Download your group assignments in various formats</p>
+    <div class="export-buttons">
+        <button class="export-btn" onclick="exportToCSV()">
+            📄 Export to CSV
+        </button>
+        <button class="export-btn" onclick="exportToExcel()">
+            📊 Export to Excel
+        </button>
+        <button class="export-btn" onclick="exportGroupSummary()">
+            📋 Export Summary Report
+        </button>
+        <button class="export-btn" onclick="exportWithDistances()">
+            📏 Export with Distances
+        </button>
+    </div>
+</div>
+
+                <div id="groupsContainer"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // ==========================================
+// LOCALSTORAGE PERSISTENCE FUNCTIONS
+// ==========================================
+
+// Save all people data to localStorage
+function saveToLocalStorage() {
+    try {
+        localStorage.setItem('shelterBibleStudyData', JSON.stringify(allPeople));
+        localStorage.setItem('shelterBibleStudySettings', JSON.stringify({
+            maxGroupSize: maxGroupSize,
+            minGroupSize: minGroupSize,
+            nextGroupIndex: nextGroupIndex,
+            zipToGroupMap: zipToGroupMap
+        }));
+        console.log('Data saved to localStorage');
+    } catch (error) {
+        console.error('Error saving to localStorage:', error);
+        alert('Unable to save data. Your browser may have storage disabled.');
+    }
+}
+
+// Load all people data from localStorage
+function loadFromLocalStorage() {
+    try {
+        // Load people data
+        const savedData = localStorage.getItem('shelterBibleStudyData');
+        if (savedData) {
+            allPeople = JSON.parse(savedData);
+            console.log('Loaded ' + allPeople.length + ' people from localStorage');
+
+            // Restore the display if there's data
+            if (allPeople.length > 0) {
+                displayAllGroups();
+
+                // Restore map markers for people with coordinates
+                const peopleWithCoords = allPeople.filter(function(p) { return p.coordinates; });
+                if (peopleWithCoords.length > 0) {
+                    document.getElementById('mapSection').style.display = 'block';
+                    initMap();
+
+                    peopleWithCoords.forEach(function(person) {
+                        addMarkerToMap(person);
+                    });
+
+                    updateMapView();
+                }
+            }
+        }
+
+        // Load settings
+        const savedSettings = localStorage.getItem('shelterBibleStudySettings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            maxGroupSize = settings.maxGroupSize || 15;
+            minGroupSize = settings.minGroupSize || 5;
+            nextGroupIndex = settings.nextGroupIndex || 3;
+            if (settings.zipToGroupMap) {
+                Object.assign(zipToGroupMap, settings.zipToGroupMap);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading from localStorage:', error);
+    }
+}
+
+// Clear all data from localStorage (useful for admin/reset)
+function clearLocalStorage() {
+    if (confirm('Are you sure you want to delete all data? This cannot be undone.')) {
+        localStorage.removeItem('shelterBibleStudyData');
+        localStorage.removeItem('shelterBibleStudySettings');
+        allPeople = [];
+        nextGroupIndex = 3;
+        document.getElementById('allGroups').style.display = 'none';
+        document.getElementById('mapSection').style.display = 'none';
+        if (map) {
+            markers.forEach(function(marker) { map.removeLayer(marker); });
+            markers = [];
+        }
+        alert('All data has been cleared.');
+        location.reload();
+    }
+}
+
+// Export data as backup (download JSON file)
+function exportBackup() {
+    const backup = {
+        people: allPeople,
+        settings: {
+            maxGroupSize: maxGroupSize,
+            minGroupSize: minGroupSize,
+            nextGroupIndex: nextGroupIndex,
+            zipToGroupMap: zipToGroupMap
+        },
+        exportDate: new Date().toISOString()
+    };
+
+    const dataStr = JSON.stringify(backup, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'shelter_bible_study_backup_' + new Date().toISOString().split('T') + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    alert('Backup file downloaded successfully!');
+}
+
+// Import data from backup (upload JSON file)
+function importBackup() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+
+    input.onchange = function(e) {
+        const file = e.target.files;
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const backup = JSON.parse(event.target.result);
+
+                if (backup.people && Array.isArray(backup.people)) {
+                    if (confirm('This will replace all current data. Continue?')) {
+                        allPeople = backup.people;
+
+                        if (backup.settings) {
+                            maxGroupSize = backup.settings.maxGroupSize || 15;
+                            minGroupSize = backup.settings.minGroupSize || 5;
+                            nextGroupIndex = backup.settings.nextGroupIndex || 3;
+                            if (backup.settings.zipToGroupMap) {
+                                Object.assign(zipToGroupMap, backup.settings.zipToGroupMap);
+                            }
+                        }
+
+                        saveToLocalStorage();
+                        alert('Backup restored successfully! Reloading page...');
+                        location.reload();
+                    }
+                } else {
+                    alert('Invalid backup file format.');
+                }
+            } catch (error) {
+                console.error('Error importing backup:', error);
+                alert('Error reading backup file. Please ensure it is a valid JSON file.');
+            }
+        };
+        reader.readAsText(file);
+    };
+
+    input.click();
+}
+
+        const zipToGroupMap = {'60402': 'Almighty', '60446': 'Blessing', '60443': 'Christ is King'};
+        const allGroupNames = ['Almighty', 'Blessing', 'Christ is King', 'Dependable God', 'El-Shaddai', 'Fortress', 'God on High', 'Helper', 'Indescribable God', 'Jireh', 'King of Kings', 'Lion of Judah', 'Most High', 'Nisi', 'Ominipotent', 'Peace', 'un-Questionable God', 'Rapha', 'Sabaoth', 'Tsidkenu', 'Unfailing Helper', 'Very Present Help', 'Wonderous God', 'Xcellent God', 'Yahweh', "Zion's King"];
+        let allPeople = [];
+        let nextGroupIndex = 3;
+        let map = null;
+        let markers = [];
+
+        function extractILZipCode(location) {
+            const match = location.match(/\b(60\d{3})\b/);
+            return match ? match[1] : null;
+        }
+
+        function assignGroup(zipCode) {
+            if (zipToGroupMap[zipCode]) return zipToGroupMap[zipCode];
+            if (nextGroupIndex < allGroupNames.length) {
+                const groupName = allGroupNames[nextGroupIndex];
+                zipToGroupMap[zipCode] = groupName;
+                nextGroupIndex++;
+                return groupName;
+            }
+            return allGroupNames[nextGroupIndex % allGroupNames.length];
+        }
+
+        async function geocodeAddress(address) {
+            try {
+                const response = await fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(address) + '&countrycodes=us&limit=1');
+                const data = await response.json();
+                if (data && data.length > 0) return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+                return null;
+            } catch (error) { 
+                console.error('Geocoding error:', error); 
+                return null; 
+            }
+        }
+
+        function initMap() {
+            if (!map) {
+                map = L.map('map').setView([41.8781, -87.6298], 8);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+                    attribution: '© OpenStreetMap contributors', 
+                    maxZoom: 18 
+                }).addTo(map);
+            }
+        }
+
+        function addMarkerToMap(person) {
+            if (person.coordinates && map) {
+                const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#34495e', '#16a085', '#c0392b'];
+                const groupColor = colors[allGroupNames.indexOf(person.group) % colors.length];
+                const marker = L.circleMarker([person.coordinates.lat, person.coordinates.lon], { 
+                    radius: 8, 
+                    fillColor: groupColor, 
+                    color: '#fff', 
+                    weight: 2, 
+                    opacity: 1, 
+                    fillOpacity: 0.8 
+                }).addTo(map);
+                marker.bindPopup('<strong>' + person.firstName + ' ' + person.lastName + '</strong><br>Group: ' + person.group + '<br>ZIP: ' + person.zipCode);
+                markers.push(marker);
+            }
+        }
+
+        function updateMapView() {
+            if (map && allPeople.length > 0) {
+                const validCoords = allPeople.filter(p => p.coordinates);
+                if (validCoords.length > 0) {
+                    const bounds = L.latLngBounds(validCoords.map(p => [p.coordinates.lat, p.coordinates.lon]));
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                }
+            }
+        }
+
+        document.getElementById('userForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const location = document.getElementById('location').value.trim();
+            const zipCode = extractILZipCode(location);
+            
+            if (!zipCode) { 
+                alert('Please enter a valid Illinois address with a ZIP code without the IL (60xxx format)'); 
+                return; 
+            }
+            
+            document.getElementById('loadingSpinner').classList.add('show');
+            document.getElementById('submitBtn').disabled = true;
+            
+            const coordinates = await geocodeAddress(location);
+            
+            document.getElementById('loadingSpinner').classList.remove('show');
+            document.getElementById('submitBtn').disabled = false;
+            
+            const groupName = assignGroup(zipCode);
+            const newPerson = { 
+                firstName, 
+                lastName, 
+                location, 
+                zipCode, 
+                group: groupName, 
+                coordinates, 
+                timestamp: new Date().toISOString() 
+            };
+            
+            allPeople.push(newPerson);
+            saveToLocalStorage();
+
+            
+            document.getElementById('successMessage').classList.add('show');
+            setTimeout(function() { 
+                document.getElementById('successMessage').classList.remove('show'); 
+            }, 3000);
+            
+            displayGroupAssignment(newPerson);
+            
+            if (coordinates) {
+                document.getElementById('mapSection').style.display = 'block';
+                initMap();
+                addMarkerToMap(newPerson);
+                updateMapView();
+            }
+            
+            displayAllGroups();
+            saveToLocalStorage();
+
+        });
+
+        function displayGroupAssignment(person) {
+            document.getElementById('displayName').textContent = person.firstName + ' ' + person.lastName;
+            document.getElementById('displayLocation').textContent = person.location;
+            document.getElementById('displayZip').textContent = person.zipCode;
+            document.getElementById('displayGroup').textContent = person.group;
+            
+            const groupMembers = allPeople.filter(p => p.group === person.group);
+            const membersContainer = document.getElementById('membersContainer');
+            
+            if (groupMembers.length > 1) {
+                membersContainer.innerHTML = groupMembers.map(m => 
+                    '<div class="member-item">' + m.firstName + ' ' + m.lastName + ' - ' + m.zipCode + '</div>'
+                ).join('');
+            } else {
+                membersContainer.innerHTML = '<div class="member-item">You are the first member of this group! 🎉</div>';
+            }
+            
+            document.getElementById('groupDisplay').classList.add('show');
+            document.getElementById('groupDisplay').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        }
+
+        function displayAllGroups() {
+            const groups = {};
+            allPeople.forEach(person => { 
+                if (!groups[person.group]) groups[person.group] = []; 
+                groups[person.group].push(person); 
+            updateExportVisibility();
+
+            });
+            
+            const groupsContainer = document.getElementById('groupsContainer');
+            groupsContainer.innerHTML = Object.entries(groups).sort((a, b) => b[1].length - a[1].length).map(function(entry) {
+                const groupName = entry[0];
+                const members = entry[1];
+                const zipCodes = [...new Set(members.map(m => m.zipCode))].join(', ');
+                return '<div class="group-card">' +
+                    '<div class="group-card-header">' +
+                    '<div class="group-title">✝️ ' + groupName + '</div>' +
+                    '<div class="group-count">' + members.length + ' ' + (members.length === 1 ? 'member' : 'members') + '</div>' +
+                    '</div>' +
+                    '<div class="location-info"><strong>ZIP Codes:</strong> ' + zipCodes + '</div>' +
+                    '<div class="group-members">' +
+                    members.map(m => '<div class="group-member">' + m.firstName + ' ' + m.lastName + '<br><small>' + m.zipCode + '</small></div>').join('') +
+                    '</div></div>';
+            }).join('');
+            
+            document.getElementById('allGroups').style.display = 'block';
+        }
+
+        function addAnother() {
+            document.getElementById('userForm').reset();
+            document.getElementById('groupDisplay').classList.remove('show');
+            document.getElementById('firstName').focus();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+        // Show export section when there are people registered
+function updateExportVisibility() {
+    if (allPeople.length > 0) {
+        document.getElementById('exportSection').style.display = 'block';
+    }
+}
+
+// Export to CSV
+function exportToCSV() {
+    if (allPeople.length === 0) {
+        alert('No data to export. Please add members first.');
+        return;
+    }
+
+    let csv = 'First Name,Last Name,Location,ZIP Code,Group';
+    allPeople.forEach(function(p) {
+        csv += '"' + p.firstName + '","' + p.lastName + '","' + p.location + '","' + p.zipCode + '","' + p.group + '';
+    });
+
+    downloadFile(csv, 'shelter_bible_study_groups.csv', 'text/csv');
+}
+
+// Export to Excel
+function exportToExcel() {
+    if (allPeople.length === 0) {
+        alert('No data to export. Please add members first.');
+        return;
+    }
+
+    const ws_data = [['First Name', 'Last Name', 'Location', 'ZIP Code', 'Group']];
+    allPeople.forEach(function(p) {
+        ws_data.push([p.firstName, p.lastName, p.location, p.zipCode, p.group]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Group Assignments');
+    XLSX.writeFile(wb, 'shelter_bible_study_groups.xlsx');
+}
+
+        // Export Group Summary
+        function exportGroupSummary() {
+            if (allPeople.length === 0) {
+                alert('No data to export. Please add members first.');
+                return;
+            }
+
+            const groups = {};
+            allPeople.forEach(function(person) {
+                if (!groups[person.group]) groups[person.group] = [];
+                groups[person.group].push(person);
+            });
+
+            let csv = 'Group Name,Member Count,ZIP Codes,Member Names';
+            Object.entries(groups).forEach(function(entry) {
+                const groupName = entry;
+                const members = entry;
+                const zipCodes = [...new Set(members.map(function(m) { return m.zipCode; }))].join('; ');
+                const memberNames = members.map(function(m) { return m.firstName + ' ' + m.lastName; }).join('; ');
+                csv += '"' + groupName + '","' + members.length + '","' + zipCodes + '","' + memberNames + '"';
+            });
+
+            downloadFile(csv, 'group_summary_report.csv', 'text/csv');
+        }
+
+        // Export with Distance Calculations
+        function exportWithDistances() {
+            if (allPeople.length === 0) {
+                alert('No data to export. Please add members first.');
+                return;
+            }
+
+            let csv = 'First Name,Last Name,Group,ZIP Code,Avg Distance to Group (miles),Closest Member,Farthest Member';
+
+            allPeople.forEach(function(person) {
+                let avgDist = 'N/A';
+                let closestMember = 'N/A';
+                let farthestMember = 'N/A';
+
+                if (person.coordinates) {
+                    const groupMembers = allPeople.filter(function(p) {
+                        return p.group === person.group && p.coordinates && p !== person;
+                    });
+
+                    if (groupMembers.length > 0) {
+                        const distances = groupMembers.map(function(m) {
+                            return {
+                                name: m.firstName + ' ' + m.lastName,
+                                distance: calculateDistance(
+                                    person.coordinates.lat,
+                                    person.coordinates.lon,
+                                    m.coordinates.lat,
+                                    m.coordinates.lon
+                                )
+                            };
+                        });
+
+                        avgDist = (distances.reduce(function(sum, d) { return sum + d.distance; }, 0) / distances.length).toFixed(1);
+                        const closest = distances.reduce(function(min, d) { return d.distance < min.distance ? d : min; });
+                        const farthest = distances.reduce(function(max, d) { return d.distance > max.distance ? d : max; });
+                        closestMember = closest.name + ' (' + closest.distance.toFixed(1) + ' mi)';
+                        farthestMember = farthest.name + ' (' + farthest.distance.toFixed(1) + ' mi)';
+                    }
+                }
+
+                csv += '"' + person.firstName + '","' + person.lastName + '","' + person.group + '","' + person.zipCode + '","' + avgDist + '","' + closestMember + '","' + farthestMember + '"';
+            });
+
+            downloadFile(csv, 'groups_with_distances.csv', 'text/csv');
+        }
+
+        // Helper function to download files
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+        // Load data when page loads
+window.addEventListener('DOMContentLoaded', function() {
+    loadFromLocalStorage();
+});
+
+// Auto-save every 30 seconds (optional but recommended)
+setInterval(function() {
+    if (allPeople.length > 0) {
+        saveToLocalStorage();
+    }
+}, 30000);
+
+// Save before page unload (backup safety)
+window.addEventListener('beforeunload', function() {
+    saveToLocalStorage();
+});
+
+
+    </script>
+    <div style="margin-top: 50px; padding: 30px; background: #f7fafc; border-radius: 10px; border: 2px solid #cbd5e0;">
+    <h3 style="color: #2d3748; margin-bottom: 20px; font-size: 1.5em; border-bottom: 3px solid #d69e2e; padding-bottom: 10px;">
+        🔧 Data Management
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <button onclick="exportBackup()" style="padding: 12px 20px; background: #3182ce; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+            💾 Download Backup
+        </button>
+        <button onclick="importBackup()" style="padding: 12px 20px; background: #38a169; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+            📂 Restore Backup
+        </button>
+        <button onclick="clearLocalStorage()" style="padding: 12px 20px; background: #e53e3e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+            🗑️ Clear All Data
+        </button>
+    </div>
+    <p style="margin-top: 15px; color: #718096; font-size: 0.9em;">
+        <strong>Note:</strong> Data is automatically saved to your browser. Download backups regularly to prevent data loss.
+    </p>
+</div>
+
+</body>
+</html>
+
+```
