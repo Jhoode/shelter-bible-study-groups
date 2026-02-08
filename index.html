@@ -107,12 +107,67 @@
             cursor: not-allowed;
         }
 
+        /* Meeting Location Styles */
+        .meeting-location {
+            background: rgba(251, 211, 141, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid #fbd38d;
+        }
+
+        .meeting-location h4 {
+            color: #fbd38d;
+            font-size: 1.2em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .meeting-location p {
+            font-size: 1.05em;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .location-icon {
+            font-size: 1.3em;
+        }
+
+        .app-logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .header-with-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .reassignment-notice {
+            background: rgba(237, 137, 54, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #ed8936;
+            color: white;
+        }
+
+        .reassignment-notice strong {
+            color: #fbd38d;
+        }
+
+
 
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
+        <div class="header-with-logo">
+            <img src="logo.png" alt="The Shelter Logo" class="app-logo">
             <h1>✝️ The Shelter Bible Study</h1>
             <p>Group Assignment - Illinois Region</p>
         </div>
@@ -467,26 +522,67 @@ function importBackup() {
 
         });
 
-        function displayGroupAssignment(person) {
-            document.getElementById('displayName').textContent = person.firstName + ' ' + person.lastName;
-            document.getElementById('displayLocation').textContent = person.location;
-            document.getElementById('displayZip').textContent = person.zipCode;
-            document.getElementById('displayGroup').textContent = person.group;
-            
-            const groupMembers = allPeople.filter(p => p.group === person.group);
-            const membersContainer = document.getElementById('membersContainer');
-            
-            if (groupMembers.length > 1) {
-                membersContainer.innerHTML = groupMembers.map(m => 
-                    '<div class="member-item">' + m.firstName + ' ' + m.lastName + ' - ' + m.zipCode + '</div>'
-                ).join('');
-            } else {
-                membersContainer.innerHTML = '<div class="member-item">You are the first member of this group! 🎉</div>';
-            }
-            
-            document.getElementById('groupDisplay').classList.add('show');
-            document.getElementById('groupDisplay').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+ function displayGroupAssignment(person) {
+    // Check for reassignment
+    const reassignmentInfo = checkAndReassignSmallGroups(person);
+
+    document.getElementById('displayName').textContent = person.firstName + ' ' + person.lastName;
+    document.getElementById('displayLocation').textContent = person.location;
+    document.getElementById('displayZip').textContent = person.zipCode;
+    document.getElementById('displayGroup').textContent = person.group;
+
+    // Add meeting location
+    const meetingLocation = getMeetingLocation(person.group);
+    let meetingLocationHTML = '<div class="meeting-location">';
+    meetingLocationHTML += '<h4><span class="location-icon">📍</span> Meeting Location</h4>';
+    meetingLocationHTML += '<p><strong>Address:</strong> ' + meetingLocation + '</p>';
+    meetingLocationHTML += '<p><strong>Meeting Time:</strong> Sundays at 10:00 AM</p>';
+    meetingLocationHTML += '</div>';
+
+    // Add reassignment notice if applicable
+    if (reassignmentInfo.reassigned) {
+        meetingLocationHTML += '<div class="reassignment-notice">';
+        meetingLocationHTML += '<strong>ℹ️ Group Reassignment:</strong><br>';
+        meetingLocationHTML += 'You were moved from "' + reassignmentInfo.oldGroup + '" to "' + person.group + '" ';
+        meetingLocationHTML += 'because ' + reassignmentInfo.reason + '. ';
+        meetingLocationHTML += 'You have been placed in the closest group with adequate members.';
+        meetingLocationHTML += '</div>';
+    }
+
+    // Insert after group assignment statement
+    const groupAssignmentDiv = document.querySelector('.group-assignment-statement');
+    if (groupAssignmentDiv) {
+        groupAssignmentDiv.insertAdjacentHTML('afterend', meetingLocationHTML);
+    }
+
+    // Rest of your existing code for distances and members...
+    const groupMembers = allPeople.filter(function(p) { return p.group === person.group; });
+
+    if (person.coordinates && groupMembers.length > 1) {
+        const distances = groupMembers.filter(function(m) { return m.coordinates && m !== person; }).map(function(m) {
+            return {
+                name: m.firstName + ' ' + m.lastName,
+                distance: calculateDistance(person.coordinates.lat, person.coordinates.lon, m.coordinates.lat, m.coordinates.lon)
+            };
+        });
+
+        if (distances.length > 0) {
+            const avgDistance = (distances.reduce(function(sum, d) { return sum + d.distance; }, 0) / distances.length).toFixed(1);
+            const closest = distances.reduce(function(min, d) { return d.distance < min.distance ? d : min; });
+            const farthest = distances.reduce(function(max, d) { return d.distance > max.distance ? d : max; });
+            document.getElementById('distanceInfo').innerHTML = '<strong>📍 Distance Information:</strong><br>Average: ' + avgDistance + ' miles<br>Closest: ' + closest.name + ' (' + closest.distance.toFixed(1) + ' mi)<br>Farthest: ' + farthest.name + ' (' + farthest.distance.toFixed(1) + ' mi)';
         }
+    }
+
+    const membersContainer = document.getElementById('membersContainer');
+    membersContainer.innerHTML = groupMembers.length > 1 ?
+        groupMembers.map(function(m) { return '<div class="member-item">' + m.firstName + ' ' + m.lastName + ' - ' + m.zipCode + '</div>'; }).join('') :
+        '<div class="member-item">You are the first member! 🎉</div>';
+
+    document.getElementById('groupDisplay').classList.add('show');
+    document.getElementById('groupDisplay').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+}
+
 
         function displayAllGroups() {
             const groups = {};
@@ -645,6 +741,129 @@ function exportToExcel() {
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
         }
+
+        // Define meeting locations for each group (placeholders)
+const groupMeetingLocations = {
+    'Almighty': '123 Testing Lane, Chicago, IL 60402',
+    'Blessing': '456 Sample Street, Romeoville, IL 60446',
+    'Christ is King': '789 Example Ave, Joliet, IL 60443',
+    'Dependable God': '321 Demo Road, Aurora, IL 60505',
+    'El-Shaddai': '654 Trial Blvd, Naperville, IL 60540',
+    'Fortress': '987 Placeholder Dr, Bolingbrook, IL 60440',
+    'God on High': '147 Test Court, Plainfield, IL 60544',
+    'Helper': '258 Sample Way, Oswego, IL 60543',
+    'Indescribable God': '369 Example Ln, Yorkville, IL 60560',
+    'Jireh': '741 Demo Ave, Montgomery, IL 60538',
+    'King of Kings': '852 Trial St, Bristol, IL 60512',
+    'Lion of Judah': '963 Placeholder Rd, Plano, IL 60545',
+    'Most High': '159 Test Ave, Sandwich, IL 60548',
+    'Nisi': '357 Sample Dr, Somonauk, IL 60552',
+    'Ominipotent': '486 Example Ct, Waterman, IL 60556',
+    'Peace': '624 Demo Ln, Hinckley, IL 60520',
+    'un-Questionable God': '735 Trial Way, Big Rock, IL 60511',
+    'Rapha': '846 Placeholder Ave, Earlville, IL 60518',
+    'Sabaoth': '957 Test Blvd, Leland, IL 60531',
+    'Tsidkenu': '168 Sample Rd, Sheridan, IL 60551',
+    'Unfailing Helper': '279 Example St, Serena, IL 60549',
+    'Very Present Help': '381 Demo Dr, Marseilles, IL 61341',
+    'Wonderous God': '492 Trial Ct, Ottawa, IL 61350',
+    'Xcellent God': '513 Placeholder Ln, Streator, IL 61364',
+    'Yahweh': '624 Test Way, Peru, IL 61354',
+    "Zion's King": '735 Sample Ave, LaSalle, IL 61301'
+};
+
+const MIN_GROUP_THRESHOLD = 3;
+
+// Check if group needs reassignment
+function checkAndReassignSmallGroups(person) {
+    const groups = {};
+    allPeople.forEach(function(p) {
+        if (!groups[p.group]) groups[p.group] = [];
+        groups[p.group].push(p);
+    });
+
+    const currentGroupSize = groups[person.group].length;
+
+    if (currentGroupSize < MIN_GROUP_THRESHOLD) {
+        const newGroup = findClosestGroupWithSpace(person, groups);
+        if (newGroup && newGroup !== person.group) {
+            const oldGroup = person.group;
+            person.group = newGroup;
+
+            allPeople.forEach(function(p) {
+                if (p.group === oldGroup) {
+                    p.group = newGroup;
+                }
+            });
+
+            return {
+                reassigned: true,
+                oldGroup: oldGroup,
+                newGroup: newGroup,
+                reason: 'Group had fewer than ' + MIN_GROUP_THRESHOLD + ' members'
+            };
+        }
+    }
+
+    return { reassigned: false };
+}
+
+// Find closest group with space
+function findClosestGroupWithSpace(person, groups) {
+    if (!person.coordinates) {
+        let minSize = Infinity;
+        let targetGroup = null;
+
+        Object.entries(groups).forEach(function(entry) {
+            const groupName = entry;
+            const members = entry;
+            if (members.length >= MIN_GROUP_THRESHOLD && members.length < maxGroupSize && members.length < minSize) {
+                minSize = members.length;
+                targetGroup = groupName;
+            }
+        });
+
+        return targetGroup || allGroupNames;
+    }
+
+    let closestGroup = null;
+    let minDistance = Infinity;
+
+    Object.entries(groups).forEach(function(entry) {
+        const groupName = entry;
+        const members = entry;
+
+        if (members.length < MIN_GROUP_THRESHOLD || members.length >= maxGroupSize) return;
+
+        const membersWithCoords = members.filter(function(m) { return m.coordinates; });
+        if (membersWithCoords.length === 0) return;
+
+        let totalDist = 0;
+        membersWithCoords.forEach(function(m) {
+            totalDist += calculateDistance(
+                person.coordinates.lat,
+                person.coordinates.lon,
+                m.coordinates.lat,
+                m.coordinates.lon
+            );
+        });
+
+        const avgDist = totalDist / membersWithCoords.length;
+
+        if (avgDist < minDistance) {
+            minDistance = avgDist;
+            closestGroup = groupName;
+        }
+    });
+
+    return closestGroup || allGroupNames;
+}
+
+// Get meeting location
+function getMeetingLocation(groupName) {
+    return groupMeetingLocations[groupName] || 'Location to be announced';
+}
+
 
 
      </script>
