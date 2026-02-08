@@ -1,876 +1,1121 @@
-```html
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Shelter Bible Study Group Assignment</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Shelter Bible Study Group Assignment</title>
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%); min-height: 100vh; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%); color: white; padding: 40px 30px; text-align: center; border-bottom: 4px solid #d69e2e; }
-        .header h1 { font-size: 2.2em; margin-bottom: 10px; font-weight: 700; }
-        .header p { font-size: 1.1em; opacity: 0.95; font-style: italic; }
-        .content { padding: 40px; }
-        .success-message { display: none; background: #38a169; color: white; padding: 18px 25px; border-radius: 10px; margin-bottom: 25px; font-weight: 600; font-size: 1.1em; text-align: center; animation: slideIn 0.5s ease; box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3); }
-        .success-message.show { display: block; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        .input-section h2 { color: #2d3748; margin-bottom: 25px; font-size: 1.6em; border-bottom: 3px solid #d69e2e; padding-bottom: 10px; }
-        .form-group { margin-bottom: 22px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #4a5568; font-weight: 600; font-size: 1em; }
-        .form-group input { width: 100%; padding: 14px 16px; border: 2px solid #cbd5e0; border-radius: 8px; font-size: 1em; transition: all 0.3s; background: #f7fafc; }
-        .form-group input:focus { outline: none; border-color: #2c5282; box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1); background: white; }
-        .input-hint { font-size: 0.85em; color: #718096; margin-top: 6px; font-style: italic; }
-        .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%); color: white; border: none; border-radius: 10px; font-size: 1.15em; font-weight: 700; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(44, 82, 130, 0.4); }
-        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .group-display { display: none; background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%); color: white; padding: 30px; border-radius: 12px; margin-top: 25px; animation: fadeIn 0.6s ease; box-shadow: 0 8px 24px rgba(44, 82, 130, 0.3); }
-        .group-display.show { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .group-display h3 { font-size: 2em; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #d69e2e; padding-bottom: 15px; }
-        .group-info { background: rgba(255, 255, 255, 0.15); padding: 25px; border-radius: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        .group-info p { font-size: 1.15em; margin-bottom: 12px; line-height: 1.7; }
-        .group-info strong { font-weight: 700; color: #fbd38d; }
-        .group-assignment-statement { font-size: 1.5em; color: #fbd38d; font-weight: 800; text-align: center; margin: 25px 0; padding: 20px; background: rgba(251, 211, 141, 0.2); border-radius: 10px; border: 2px solid #fbd38d; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
-        .members-list { margin-top: 25px; padding-top: 20px; border-top: 2px solid rgba(255, 255, 255, 0.3); }
-        .members-list h4 { font-size: 1.3em; margin-bottom: 15px; color: #fbd38d; }
-        .member-item { background: rgba(255, 255, 255, 0.2); padding: 12px 16px; border-radius: 6px; margin-bottom: 10px; font-size: 1em; border-left: 4px solid #d69e2e; }
-        .add-another-btn { width: 100%; padding: 14px; background: white; color: #2c5282; border: 2px solid white; border-radius: 8px; font-size: 1.05em; font-weight: 700; cursor: pointer; margin-top: 20px; transition: all 0.3s; text-transform: uppercase; }
-        .add-another-btn:hover { background: #fbd38d; color: #2d3748; }
-        #map { height: 500px; width: 100%; border-radius: 10px; margin-top: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .map-section { margin-top: 40px; padding-top: 30px; border-top: 3px solid #e2e8f0; }
-        .map-section h3 { color: #2d3748; margin-bottom: 20px; font-size: 1.7em; text-align: center; }
-        .all-groups { margin-top: 50px; padding-top: 35px; border-top: 3px solid #e2e8f0; }
-        .all-groups h3 { color: #2d3748; margin-bottom: 25px; font-size: 1.7em; text-align: center; }
-        .group-card { background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); border: 2px solid #cbd5e0; border-radius: 10px; padding: 25px; margin-bottom: 20px; transition: all 0.3s; }
-        .group-card:hover { border-color: #2c5282; box-shadow: 0 6px 20px rgba(44, 82, 130, 0.15); transform: translateY(-2px); }
-        .group-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 15px; border-bottom: 2px solid #d69e2e; }
-        .group-title { font-size: 1.4em; color: #2c5282; font-weight: 700; }
-        .group-count { background: #2c5282; color: white; padding: 8px 18px; border-radius: 25px; font-weight: 700; font-size: 0.95em; }
-        .group-members { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-        .group-member { background: white; padding: 12px 14px; border-radius: 6px; font-size: 0.95em; border-left: 3px solid #d69e2e; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .location-info { background: #edf2f7; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.9em; color: #4a5568; }
-        .loading-spinner { display: none; text-align: center; padding: 10px; color: #2c5282; }
-        .loading-spinner.show { display: block; }
-        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #2c5282; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-        .export-section {
-            margin-top: 40px;
-            padding: 30px;
-            background: #f7fafc;
-            border-radius: 10px;
-            border: 2px solid #cbd5e0;
-        }
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+      border-bottom: 4px solid #d69e2e;
+    }
+    .header-with-logo { display:flex; flex-direction:column; align-items:center; gap:10px; }
+    .app-logo { max-width:150px; height:auto; }
+    .header h1 { font-size: 2.0em; }
+    .header p { opacity: 0.95; font-style: italic; }
 
-        .export-section h3 {
-            color: #2d3748;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-            border-bottom: 3px solid #d69e2e;
-            padding-bottom: 10px;
-        }
+    .content { padding: 30px; }
+    .success-message {
+      display:none;
+      background:#38a169;
+      color:#fff;
+      padding:14px 18px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+      font-weight: 600;
+      text-align:center;
+    }
+    .success-message.show { display:block; }
 
-        .export-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
+    .input-section h2 {
+      color:#2d3748;
+      margin-bottom: 18px;
+      font-size: 1.4em;
+      border-bottom: 3px solid #d69e2e;
+      padding-bottom: 8px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display:block; margin-bottom:6px; color:#4a5568; font-weight:600; }
+    .form-group input {
+      width:100%;
+      padding: 12px 14px;
+      border: 2px solid #cbd5e0;
+      border-radius: 8px;
+      font-size: 1em;
+      background:#f7fafc;
+    }
+    .form-group input:focus {
+      outline:none;
+      border-color:#2c5282;
+      box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1);
+      background:#fff;
+    }
+    .input-hint { font-size:0.85em; color:#718096; margin-top:6px; font-style: italic; }
 
-        .export-btn {
-            padding: 16px 20px;
-            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1em;
-            transition: all 0.3s;
-            text-align: center;
-        }
+    .row {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 750px) {
+      .row { grid-template-columns: 1fr; }
+    }
 
-        .export-btn:hover {
-            background: linear-gradient(135deg, #2f855a 0%, #276749 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(47, 133, 90, 0.4);
-        }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.05em;
+      font-weight: 700;
+      cursor:pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .btn.primary {
+      background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%);
+      color: white;
+    }
+    .btn.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(44, 82, 130, 0.35); }
+    .btn.secondary {
+      background: #fff;
+      color: #2c5282;
+      border: 2px solid #2c5282;
+    }
+    .btn.secondary:hover { background:#fbd38d; color:#2d3748; border-color:#fbd38d; }
+    .btn.danger {
+      background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+      color:#fff;
+    }
+    .btn.danger:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(229,62,62,0.35); }
 
-        .export-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+    .loading-spinner { display:none; text-align:center; padding: 12px; color:#2c5282; }
+    .loading-spinner.show { display:block; }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #2c5282;
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 8px;
+    }
+    @keyframes spin { 0%{ transform:rotate(0deg);} 100%{ transform:rotate(360deg);} }
 
-        /* Meeting Location Styles */
-        .meeting-location {
-            background: rgba(251, 211, 141, 0.2);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border: 2px solid #fbd38d;
-        }
+    .group-display {
+      display:none;
+      background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%);
+      color:#fff;
+      padding: 22px;
+      border-radius: 12px;
+      margin-top: 22px;
+      box-shadow: 0 8px 24px rgba(44,82,130,0.28);
+    }
+    .group-display.show { display:block; }
+    .group-display h3 { text-align:center; margin-bottom: 14px; border-bottom: 2px solid #d69e2e; padding-bottom: 12px; }
+    .group-info { background: rgba(255,255,255,0.14); padding: 18px; border-radius: 10px; }
+    .group-info p { margin-bottom: 10px; line-height: 1.6; }
+    .group-info strong { color:#fbd38d; }
+    .group-assignment-statement {
+      font-size: 1.2em;
+      color:#fbd38d;
+      font-weight: 800;
+      text-align:center;
+      margin: 16px 0;
+      padding: 14px;
+      background: rgba(251,211,141,0.18);
+      border-radius: 10px;
+      border: 2px solid #fbd38d;
+    }
+    .meeting-location {
+      background: rgba(251, 211, 141, 0.18);
+      padding: 14px;
+      border-radius: 10px;
+      margin-top: 12px;
+      border: 2px solid #fbd38d;
+    }
+    .meeting-location h4 {
+      color:#fbd38d;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-bottom: 8px;
+    }
 
-        .meeting-location h4 {
-            color: #fbd38d;
-            font-size: 1.2em;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .members-list { margin-top: 18px; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 14px; }
+    .member-item {
+      background: rgba(255,255,255,0.2);
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      border-left: 4px solid #d69e2e;
+    }
 
-        .meeting-location p {
-            font-size: 1.05em;
-            line-height: 1.6;
-            margin-bottom: 8px;
-        }
+    .distance-info {
+      margin-top: 14px;
+      background: rgba(255,255,255,0.15);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
 
-        .location-icon {
-            font-size: 1.3em;
-        }
+    #map { height: 480px; width:100%; border-radius: 10px; margin-top: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
-        .app-logo {
-            max-width: 150px;
-            height: auto;
-            margin-bottom: 15px;
-        }
+    .section {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 3px solid #e2e8f0;
+    }
+    .section h3 { text-align:center; color:#2d3748; margin-bottom: 14px; }
 
-        .header-with-logo {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    .all-groups { display:none; }
+    .group-card {
+      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+      border: 2px solid #cbd5e0;
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 14px;
+      transition: all 0.2s;
+    }
+    .group-card:hover { border-color:#2c5282; box-shadow: 0 6px 20px rgba(44,82,130,0.12); transform: translateY(-1px); }
+    .group-card-header { display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #d69e2e; padding-bottom: 10px; margin-bottom: 10px; }
+    .group-title { font-size:1.2em; color:#2c5282; font-weight:800; }
+    .group-count { background:#2c5282; color:#fff; padding: 6px 14px; border-radius: 22px; font-weight:800; }
 
-        .reassignment-notice {
-            background: rgba(237, 137, 54, 0.2);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            border-left: 4px solid #ed8936;
-            color: white;
-        }
+    .group-members { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+    .group-member { background:#fff; padding: 10px 12px; border-radius: 6px; border-left: 3px solid #d69e2e; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-        .reassignment-notice strong {
-            color: #fbd38d;
-        }
+    .location-info { background:#edf2f7; padding: 10px 12px; border-radius: 8px; margin-top: 10px; color:#4a5568; font-size: 0.95em; }
 
-
-
-    </style>
+    .export-section {
+      margin-top: 16px;
+      padding: 18px;
+      background:#f7fafc;
+      border-radius:10px;
+      border:2px solid #cbd5e0;
+      display:none;
+    }
+    .export-buttons {
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .export-btn {
+      padding: 14px 16px;
+      background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight: 700;
+    }
+    .export-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(47,133,90,0.35); }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header-with-logo">
-            <img src="logo.png" alt="The Shelter Logo" class="app-logo">
-            <h1>✝️ The Shelter Bible Study</h1>
-            <p>Group Assignment - Illinois Region</p>
-        </div>
-        <div class="content">
-            <div class="success-message" id="successMessage">✅ Information Saved Successfully!</div>
-            <div class="input-section">
-                <h2>📝 Enter Your Information</h2>
-                <form id="userForm">
-                    <div class="form-group">
-                        <label for="firstName">First Name</label>
-                        <input type="text" id="firstName" required placeholder="Enter your first name">
-                    </div>
-                    <div class="form-group">
-                        <label for="lastName">Last Name</label>
-                        <input type="text" id="lastName" required placeholder="Enter your last name">
-                    </div>
-                    <div class="form-group">
-                        <label for="location">Location (Illinois)</label>
-                        <input type="text" id="location" required placeholder="e.g., 123 Main St, Chicago, IL 60402">
-                        <div class="input-hint">Please include your complete Illinois address with ZIP code</div>
-                    </div>
-                    <div class="loading-spinner" id="loadingSpinner">
-                        <div class="spinner"></div>
-                        <p>Geocoding your location...</p>
-                    </div>
-                    <button type="submit" class="submit-btn" id="submitBtn">🙏 Submit & Find My Group</button>
-                </form>
-            </div>
-            <div class="group-display" id="groupDisplay">
-                <h3>🎉 Your Assigned Group</h3>
-                <div class="group-info">
-                    <p><strong>Name:</strong> <span id="displayName"></span></p>
-                    <p><strong>Location:</strong> <span id="displayLocation"></span></p>
-                    <p><strong>ZIP Code:</strong> <span id="displayZip"></span></p>
-                    <div class="group-assignment-statement">Your group is '<span id="displayGroup"></span>'</div>
-                    <div class="members-list">
-                        <h4>👥 Your Group Members:</h4>
-                        <div id="membersContainer"></div>
-                    </div>
-                </div>
-                <button class="add-another-btn" onclick="addAnother()">➕ Add Another Person</button>
-            </div>
-            <div class="map-section" id="mapSection" style="display: none;">
-                <h3>🗺️ Group Locations Map</h3>
-                <div id="map"></div>
-            </div>
-            <div class="all-groups" id="allGroups" style="display: none;">
-                <h3>📊 All Bible Study Groups</h3>
-                <div class="export-section" id="exportSection" style="display: none;">
-    <h3>💾 Export Group Data</h3>
-    <p style="margin-bottom: 20px; color: #4a5568;">Download your group assignments in various formats</p>
-    <div class="export-buttons">
-        <button class="export-btn" onclick="exportToCSV()">
-            📄 Export to CSV
-        </button>
-        <button class="export-btn" onclick="exportToExcel()">
-            📊 Export to Excel
-        </button>
-        <button class="export-btn" onclick="exportGroupSummary()">
-            📋 Export Summary Report
-        </button>
-        <button class="export-btn" onclick="exportWithDistances()">
-            📏 Export with Distances
-        </button>
+  <div class="container">
+    <div class="header">
+      <div class="header-with-logo">
+        <img src="logo.png" alt="The Shelter Logo" class="app-logo" />
+        <h1>✝️ The Shelter Bible Study</h1>
+        <p>Group Assignment - Illinois Region</p>
+      </div>
     </div>
-</div>
 
-                <div id="groupsContainer"></div>
+    <div class="content">
+      <div class="success-message" id="successMessage">✅ Information Saved Successfully!</div>
+
+      <div class="input-section">
+        <h2>📝 Enter Your Information</h2>
+
+        <form id="userForm">
+          <div class="row">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" required placeholder="Enter your first name" />
             </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" required placeholder="Enter your last name" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="text" id="phone" placeholder="e.g., (555) 123-4567" />
+            <div class="input-hint">Please enter phone number for group communication</div>
+          </div>
+
+          <div class="form-group">
+            <label for="location">Location (Illinois)</label>
+            <input type="text" id="location" required placeholder="e.g., 123 Main St, Chicago, IL 60639" />
+            <div class="input-hint">Please include your complete Illinois address with ZIP code</div>
+          </div>
+
+          <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+            <p>Geocoding your location...</p>
+          </div>
+
+          <div class="row">
+            <button type="submit" class="btn primary" id="submitBtn">🙏 Submit & Find My Group</button>
+            <button type="button" class="btn danger" id="resetBtn">🗑️ Reset All Data</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="group-display" id="groupDisplay">
+        <h3>🎉 Your Assigned Group</h3>
+
+        <div class="group-info">
+          <p><strong>Name:</strong> <span id="displayName"></span></p>
+          <p><strong>Phone:</strong> <span id="displayPhone"></span></p>
+          <p><strong>Location:</strong> <span id="displayLocation"></span></p>
+          <p><strong>ZIP Code:</strong> <span id="displayZip"></span></p>
+
+          <div class="group-assignment-statement">
+            Your group is '<span id="displayGroup"></span>'
+          </div>
+
+          <div id="meetingLocationContainer"></div>
+
+          <div class="members-list">
+            <h4 style="color:#fbd38d;">👥 Your Group Members:</h4>
+            <div id="membersContainer"></div>
+
+            <div class="distance-info" id="distanceInfo" style="display:none;"></div>
+
+            <button type="button" class="btn secondary" id="addAnotherBtn" style="margin-top: 14px;">
+              ➕ Add Another Person
+            </button>
+          </div>
         </div>
+      </div>
+
+      <div class="section" id="mapSection" style="display:none;">
+        <h3>🗺️ Group Locations Map</h3>
+        <div id="map"></div>
+      </div>
+
+      <div class="section all-groups" id="allGroups">
+        <h3>📊 All Bible Study Groups</h3>
+
+        <div class="section" id="adminSection">
+          <h3>🔐 Admin Dashboard</h3>
+
+          <div class="export-section" style="display:block;">
+            <div id="adminLoginBox">
+              <p style="color:#4a5568; margin-bottom:10px;">Enter admin password to view registrations.</p>
+              <div class="row">
+                <input id="adminPassword" type="password" placeholder="Admin password" style="padding:12px;border:2px solid #cbd5e0;border-radius:8px;">
+                <button class="export-btn" type="button" id="adminLoginBtn">Login</button>
+              </div>
+              <p id="adminLoginError" style="color:#c53030; margin-top:10px; display:none;">Wrong password.</p>
+            </div>
+
+            <div id="adminDashboard" style="display:none;">
+              <div class="row" style="margin-bottom:12px;">
+                <button class="export-btn" type="button" id="adminRefreshBtn">🔄 Refresh</button>
+                <button class="export-btn" type="button" id="adminLogoutBtn" style="background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);">🚪 Logout</button>
+              </div>
+
+              <div style="overflow:auto; border:2px solid #cbd5e0; border-radius:10px; background:white;">
+                <table style="width:100%; border-collapse:collapse; min-width:1000px;">
+                  <thead style="background:#edf2f7;">
+                    <tr>
+                      <th style="text-align:left; padding:10px; border-bottom:2px solid #cbd5e0;">Name</th>
+                      <th style="text-align:left; padding:10px; border-bottom:2px solid #cbd5e0;">Phone</th>
+                      <th style="text-align:left; padding:10px; border-bottom:2px solid #cbd5e0;">ZIP</th>
+                      <th style="text-align:left; padding:10px; border-bottom:2px solid #cbd5e0;">Group</th>
+                      <th style="text-align:left; padding:10px; border-bottom:2px solid #cbd5e0;">Group Address</th>
+                      <th style="text-align:left; padding:10px; border-bottom:2px solid #cbd5e0;">Location</th>
+                      <th style="text-align:left; padding:10px; border-bottom:2px solid #cbd5e0;">Distance (mi)</th>
+                      <th style="text-align:left; padding:10px; border-bottom:2px solid #cbd5e0;">Registered</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="export-section" id="exportSection">
+          <h3 style="text-align:left; margin-bottom: 8px;">💾 Export Group Data</h3>
+          <p style="color:#4a5568;">Download group assignments in various formats</p>
+
+          <div class="export-buttons">
+            <button class="export-btn" type="button" id="exportCsvBtn">📄 Export to CSV</button>
+            <button class="export-btn" type="button" id="exportXlsxBtn">📊 Export to Excel</button>
+            <button class="export-btn" type="button" id="exportSummaryBtn">📋 Export Summary Report</button>
+            <button class="export-btn" type="button" id="exportDistancesBtn">📏 Export with Distances</button>
+          </div>
+        </div>
+
+        <div id="groupsContainer"></div>
+      </div>
     </div>
-    <script>
-        // ==========================================
-// LOCALSTORAGE PERSISTENCE FUNCTIONS
-// ==========================================
+  </div>
 
-// Save all people data to localStorage
-function saveToLocalStorage() {
-    try {
-        localStorage.setItem('shelterBibleStudyData', JSON.stringify(allPeople));
-        localStorage.setItem('shelterBibleStudySettings', JSON.stringify({
-            maxGroupSize: maxGroupSize,
-            minGroupSize: minGroupSize,
-            nextGroupIndex: nextGroupIndex,
-            zipToGroupMap: zipToGroupMap
-        }));
-        console.log('Data saved to localStorage');
-    } catch (error) {
-        console.error('Error saving to localStorage:', error);
-        alert('Unable to save data. Your browser may have storage disabled.');
-    }
-}
+  <script>
+    // -----------------------------
+    // CONFIG / STORAGE
+    // -----------------------------
+    const STORAGE_KEY_DATA = "shelterBibleStudyData_v2";
+    const ADMIN_PASSWORD = "ChangeMe123!"; // 🔴 change this
 
-// Load all people data from localStorage
-function loadFromLocalStorage() {
-    try {
-        // Load people data
-        const savedData = localStorage.getItem('shelterBibleStudyData');
-        if (savedData) {
-            allPeople = JSON.parse(savedData);
-            console.log('Loaded ' + allPeople.length + ' people from localStorage');
-
-            // Restore the display if there's data
-            if (allPeople.length > 0) {
-                displayAllGroups();
-
-                // Restore map markers for people with coordinates
-                const peopleWithCoords = allPeople.filter(function(p) { return p.coordinates; });
-                if (peopleWithCoords.length > 0) {
-                    document.getElementById('mapSection').style.display = 'block';
-                    initMap();
-
-                    peopleWithCoords.forEach(function(person) {
-                        addMarkerToMap(person);
-                    });
-
-                    updateMapView();
-                }
-            }
-        }
-
-        // Load settings
-        const savedSettings = localStorage.getItem('shelterBibleStudySettings');
-        if (savedSettings) {
-            const settings = JSON.parse(savedSettings);
-            maxGroupSize = settings.maxGroupSize || 15;
-            minGroupSize = settings.minGroupSize || 5;
-            nextGroupIndex = settings.nextGroupIndex || 3;
-            if (settings.zipToGroupMap) {
-                Object.assign(zipToGroupMap, settings.zipToGroupMap);
-            }
-        }
-    } catch (error) {
-        console.error('Error loading from localStorage:', error);
-    }
-}
-
-// Clear all data from localStorage (useful for admin/reset)
-function clearLocalStorage() {
-    if (confirm('Are you sure you want to delete all data? This cannot be undone.')) {
-        localStorage.removeItem('shelterBibleStudyData');
-        localStorage.removeItem('shelterBibleStudySettings');
-        allPeople = [];
-        nextGroupIndex = 3;
-        document.getElementById('allGroups').style.display = 'none';
-        document.getElementById('mapSection').style.display = 'none';
-        if (map) {
-            markers.forEach(function(marker) { map.removeLayer(marker); });
-            markers = [];
-        }
-        alert('All data has been cleared.');
-        location.reload();
-    }
-}
-
-// Export data as backup (download JSON file)
-function exportBackup() {
-    const backup = {
-        people: allPeople,
-        settings: {
-            maxGroupSize: maxGroupSize,
-            minGroupSize: minGroupSize,
-            nextGroupIndex: nextGroupIndex,
-            zipToGroupMap: zipToGroupMap
-        },
-        exportDate: new Date().toISOString()
+    // Meeting centers (your spreadsheet locations)
+    const groupLocations = {
+      "Sabaoth": {
+        addresses: ["497 N Frieh Drive, Romeoville, IL 60446"],
+        coordinates: [{ lat: 41.6784, lon: -88.0863 }],
+      },
+      "Ever Present Help": {
+        addresses: ["4352 W Parker Ave, Chicago, IL 60639"],
+        coordinates: [{ lat: 41.9486, lon: -87.7384 }]
+      },
+      "Kaddosh": {
+        addresses: ["1336 Greenwillow Lane, Glenview, IL 60025"],
+        coordinates: [{ lat: 42.0697, lon: -87.8278 }]
+      },
+      "unQuestionable God": {
+        addresses: ["1816 Grove Ave, Berwyn, IL 60402"],
+        coordinates: [{ lat: 41.8506, lon: -87.7937 }]
+      },
+      "Indescribable God": {
+        addresses: ["361 S Cornerstone Dr, Volo, IL 60020"],
+        coordinates: [{ lat: 42.3258, lon: -88.1673 }]
+      },
+      "Unfailing Helper": {
+        addresses: ["6127 N Talman Ave, Chicago, IL 60659"],
+        coordinates: [{ lat: 41.9942, lon: -87.6931 }]
+      },
+      "Zion's King": {
+        addresses: ["2468 Lambert Dr, Aurora, IL 60639"],
+        coordinates: [{ lat: 41.7606, lon: -88.3201 }]
+      }
     };
 
-    const dataStr = JSON.stringify(backup, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'shelter_bible_study_backup_' + new Date().toISOString().split('T') + '.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-    alert('Backup file downloaded successfully!');
-}
+    // -----------------------------
+    // STATE
+    // -----------------------------
+    let allPeople = [];
+    let map = null;
+    let memberMarkers = [];
+    let meetingMarkers = [];
 
-// Import data from backup (upload JSON file)
-function importBackup() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
+    // -----------------------------
+    // COORD + DISTANCE (HARDENED)
+    // -----------------------------
+    function normalizeCoords(c) {
+      if (!c) return null;
+      const lat = c.lat ?? c.latitude;
+      const lon = c.lon ?? c.lng ?? c.longitude;
+      const nLat = Number(lat);
+      const nLon = Number(lon);
+      if (!Number.isFinite(nLat) || !Number.isFinite(nLon)) return null;
+      return { lat: nLat, lon: nLon };
+    }
 
-    input.onchange = function(e) {
-        const file = e.target.files;
-        if (!file) return;
+    function haversineMiles(lat1, lon1, lat2, lon2) {
+      lat1 = Number(lat1); lon1 = Number(lon1);
+      lat2 = Number(lat2); lon2 = Number(lon2);
+      if (![lat1, lon1, lat2, lon2].every(Number.isFinite)) return null;
 
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            try {
-                const backup = JSON.parse(event.target.result);
+      const R = 3958.8; // miles
+      const toRad = (x) => (x * Math.PI) / 180;
 
-                if (backup.people && Array.isArray(backup.people)) {
-                    if (confirm('This will replace all current data. Continue?')) {
-                        allPeople = backup.people;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
 
-                        if (backup.settings) {
-                            maxGroupSize = backup.settings.maxGroupSize || 15;
-                            minGroupSize = backup.settings.minGroupSize || 5;
-                            nextGroupIndex = backup.settings.nextGroupIndex || 3;
-                            if (backup.settings.zipToGroupMap) {
-                                Object.assign(zipToGroupMap, backup.settings.zipToGroupMap);
-                            }
-                        }
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) ** 2;
 
-                        saveToLocalStorage();
-                        alert('Backup restored successfully! Reloading page...');
-                        location.reload();
-                    }
-                } else {
-                    alert('Invalid backup file format.');
-                }
-            } catch (error) {
-                console.error('Error importing backup:', error);
-                alert('Error reading backup file. Please ensure it is a valid JSON file.');
-            }
-        };
-        reader.readAsText(file);
-    };
+      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
 
-    input.click();
-}
+    // -----------------------------
+    // HELPERS
+    // -----------------------------
+    function extractILZipCode(location) {
+      const match = location.match(/\b(60\d{3})\b/);
+      return match ? match[1] : null;
+    }
 
-        const zipToGroupMap = {'60402': 'Almighty', '60446': 'Blessing', '60443': 'Christ is King'};
-        const allGroupNames = ['Almighty', 'Blessing', 'Christ is King', 'Dependable God', 'El-Shaddai', 'Fortress', 'God on High', 'Helper', 'Indescribable God', 'Jireh', 'King of Kings', 'Lion of Judah', 'Most High', 'Nisi', 'Ominipotent', 'Peace', 'un-Questionable God', 'Rapha', 'Sabaoth', 'Tsidkenu', 'Unfailing Helper', 'Very Present Help', 'Wonderous God', 'Xcellent God', 'Yahweh', "Zion's King"];
-        let allPeople = [];
-        let nextGroupIndex = 3;
-        let map = null;
-        let markers = [];
+    function normalizePhone(phone) {
+      const digits = String(phone ?? "").replace(/\D/g, "");
+      if (digits.length === 10) return digits;
+      if (digits.length === 11 && digits.startsWith("1")) return digits.slice(1);
+      return null;
+    }
 
-        function extractILZipCode(location) {
-            const match = location.match(/\b(60\d{3})\b/);
-            return match ? match[1] : null;
+    function formatPhone(digits) {
+      const d = normalizePhone(digits);
+      if (!d) return "";
+      return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+    }
+
+    async function geocodeAddress(address) {
+      try {
+        const url = "https://photon.komoot.io/api/?q=" + encodeURIComponent(address) + "&limit=1";
+        const res = await fetch(url, { headers: { Accept: "application/json" } });
+        const data = await res.json();
+
+        if (data?.features?.length) {
+          // Photon returns [lon, lat]
+          const [lon, lat] = data.features[0].geometry.coordinates;
+          return normalizeCoords({ lat, lon });
         }
+        return null;
+      } catch (e) {
+        console.error("Geocode error:", e);
+        return null;
+      }
+    }
 
-        function assignGroup(zipCode) {
-            if (zipToGroupMap[zipCode]) return zipToGroupMap[zipCode];
-            if (nextGroupIndex < allGroupNames.length) {
-                const groupName = allGroupNames[nextGroupIndex];
-                zipToGroupMap[zipCode] = groupName;
-                nextGroupIndex++;
-                return groupName;
-            }
-            return allGroupNames[nextGroupIndex % allGroupNames.length];
-        }
+    function findNearestGroup(userCoordinatesRaw) {
+      const userCoordinates = normalizeCoords(userCoordinatesRaw);
+      if (!userCoordinates) {
+        return { groupName: null, address: null, distance: null };
+      }
 
-        async function geocodeAddress(address) {
-            try {
-                const response = await fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(address) + '&countrycodes=us&limit=1');
-                const data = await response.json();
-                if (data && data.length > 0) return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
-                return null;
-            } catch (error) { 
-                console.error('Geocoding error:', error); 
-                return null; 
-            }
-        }
+      let nearestGroup = null;
+      let nearestAddress = null;
+      let minDistance = Infinity;
 
-        function initMap() {
-            if (!map) {
-                map = L.map('map').setView([41.8781, -87.6298], 8);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
-                    attribution: '© OpenStreetMap contributors', 
-                    maxZoom: 18 
-                }).addTo(map);
-            }
-        }
+      for (const groupName in groupLocations) {
+        const group = groupLocations[groupName];
 
-        function addMarkerToMap(person) {
-            if (person.coordinates && map) {
-                const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#34495e', '#16a085', '#c0392b'];
-                const groupColor = colors[allGroupNames.indexOf(person.group) % colors.length];
-                const marker = L.circleMarker([person.coordinates.lat, person.coordinates.lon], { 
-                    radius: 8, 
-                    fillColor: groupColor, 
-                    color: '#fff', 
-                    weight: 2, 
-                    opacity: 1, 
-                    fillOpacity: 0.8 
-                }).addTo(map);
-                marker.bindPopup('<strong>' + person.firstName + ' ' + person.lastName + '</strong><br>Group: ' + person.group + '<br>ZIP: ' + person.zipCode);
-                markers.push(marker);
-            }
-        }
+        group.coordinates.forEach((coordRaw, idx) => {
+          const coord = normalizeCoords(coordRaw);
+          if (!coord) return;
 
-        function updateMapView() {
-            if (map && allPeople.length > 0) {
-                const validCoords = allPeople.filter(p => p.coordinates);
-                if (validCoords.length > 0) {
-                    const bounds = L.latLngBounds(validCoords.map(p => [p.coordinates.lat, p.coordinates.lon]));
-                    map.fitBounds(bounds, { padding: [50, 50] });
-                }
-            }
-        }
+          const d = haversineMiles(userCoordinates.lat, userCoordinates.lon, coord.lat, coord.lon);
+          if (d === null) return;
 
-        document.getElementById('userForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            
-            const firstName = document.getElementById('firstName').value.trim();
-            const lastName = document.getElementById('lastName').value.trim();
-            const location = document.getElementById('location').value.trim();
-            const zipCode = extractILZipCode(location);
-            
-            if (!zipCode) { 
-                alert('Please enter a valid Illinois address with a ZIP code without the IL (60xxx format)'); 
-                return; 
-            }
-            
-            document.getElementById('loadingSpinner').classList.add('show');
-            document.getElementById('submitBtn').disabled = true;
-            
-            const coordinates = await geocodeAddress(location);
-            
-            document.getElementById('loadingSpinner').classList.remove('show');
-            document.getElementById('submitBtn').disabled = false;
-            
-            const groupName = assignGroup(zipCode);
-            const newPerson = { 
-                firstName, 
-                lastName, 
-                location, 
-                zipCode, 
-                group: groupName, 
-                coordinates, 
-                timestamp: new Date().toISOString() 
-            };
-            
-            allPeople.push(newPerson);
-            //saveToLocalStorage();
-
-            
-            document.getElementById('successMessage').classList.add('show');
-            setTimeout(function() { 
-                document.getElementById('successMessage').classList.remove('show'); 
-            }, 3000);
-            
-            displayGroupAssignment(newPerson);
-            
-            if (coordinates) {
-                document.getElementById('mapSection').style.display = 'block';
-                initMap();
-                addMarkerToMap(newPerson);
-                updateMapView();
-            }
-            
-            displayAllGroups();
-            //saveToLocalStorage();
-
+          if (d < minDistance) {
+            minDistance = d;
+            nearestGroup = groupName;
+            nearestAddress = group.addresses[idx];
+          }
         });
+      }
 
- function displayGroupAssignment(person) {
-    // Check for reassignment
-    const reassignmentInfo = checkAndReassignSmallGroups(person);
-
-    document.getElementById('displayName').textContent = person.firstName + ' ' + person.lastName;
-    document.getElementById('displayLocation').textContent = person.location;
-    document.getElementById('displayZip').textContent = person.zipCode;
-    document.getElementById('displayGroup').textContent = person.group;
-
-    // Add meeting location
-    const meetingLocation = getMeetingLocation(person.group);
-    let meetingLocationHTML = '<div class="meeting-location">';
-    meetingLocationHTML += '<h4><span class="location-icon">📍</span> Meeting Location</h4>';
-    meetingLocationHTML += '<p><strong>Address:</strong> ' + meetingLocation + '</p>';
-    meetingLocationHTML += '<p><strong>Meeting Time:</strong> Sundays at 10:00 AM</p>';
-    meetingLocationHTML += '</div>';
-
-    // Add reassignment notice if applicable
-    if (reassignmentInfo.reassigned) {
-        meetingLocationHTML += '<div class="reassignment-notice">';
-        meetingLocationHTML += '<strong>ℹ️ Group Reassignment:</strong><br>';
-        meetingLocationHTML += 'You were moved from "' + reassignmentInfo.oldGroup + '" to "' + person.group + '" ';
-        meetingLocationHTML += 'because ' + reassignmentInfo.reason + '. ';
-        meetingLocationHTML += 'You have been placed in the closest group with adequate members.';
-        meetingLocationHTML += '</div>';
+      return {
+        groupName: nearestGroup,
+        address: nearestAddress,
+        distance: Number.isFinite(minDistance) ? minDistance : null
+      };
     }
 
-    // Insert after group assignment statement
-    const groupAssignmentDiv = document.querySelector('.group-assignment-statement');
-    if (groupAssignmentDiv) {
-        groupAssignmentDiv.insertAdjacentHTML('afterend', meetingLocationHTML);
+    function showSuccess() {
+      const el = document.getElementById("successMessage");
+      el.classList.add("show");
+      setTimeout(() => el.classList.remove("show"), 2500);
     }
 
-    // Rest of your existing code for distances and members...
-    const groupMembers = allPeople.filter(function(p) { return p.group === person.group; });
+    function save() {
+      localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(allPeople));
+    }
 
-    if (person.coordinates && groupMembers.length > 1) {
-        const distances = groupMembers.filter(function(m) { return m.coordinates && m !== person; }).map(function(m) {
-            return {
-                name: m.firstName + ' ' + m.lastName,
-                distance: calculateDistance(person.coordinates.lat, person.coordinates.lon, m.coordinates.lat, m.coordinates.lon)
-            };
+    function load() {
+      const raw = localStorage.getItem(STORAGE_KEY_DATA);
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          // Normalize coords on load (in case older saves were inconsistent)
+          allPeople = parsed.map(p => ({
+            ...p,
+            coordinates: normalizeCoords(p.coordinates)
+          }));
+        }
+      } catch (e) {
+        console.warn("Bad storage data:", e);
+      }
+    }
+
+    // -----------------------------
+    // MAP
+    // -----------------------------
+    function initMap() {
+      if (map) return;
+
+      map = L.map("map").setView([41.8781, -87.6298], 8);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+        maxZoom: 18
+      }).addTo(map);
+    }
+
+    function clearMarkers(list) {
+      if (!map) return;
+      list.forEach((m) => map.removeLayer(m));
+      list.length = 0;
+    }
+
+    function addMemberMarker(person) {
+      if (!map) return;
+      const c = normalizeCoords(person.coordinates);
+      if (!c) return;
+
+      const marker = L.circleMarker([c.lat, c.lon], {
+        radius: 8,
+        fillColor: "#2c5282",
+        color: "#fff",
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.85
+      }).addTo(map);
+
+      marker.bindPopup(
+        `<strong>${escapeHtml(person.firstName)} ${escapeHtml(person.lastName)}</strong><br>
+         Phone: ${escapeHtml(formatPhone(person.phone))}<br>
+         Group: ${escapeHtml(person.group)}<br>
+         ZIP: ${escapeHtml(person.zipCode)}`
+      );
+
+      memberMarkers.push(marker);
+    }
+
+    function addMeetingCenterMarkers() {
+      if (!map) return;
+
+      clearMarkers(meetingMarkers);
+
+      for (const groupName in groupLocations) {
+        const g = groupLocations[groupName];
+
+        g.coordinates.forEach((coordRaw, idx) => {
+          const coord = normalizeCoords(coordRaw);
+          if (!coord) return;
+
+          const marker = L.marker([coord.lat, coord.lon], {
+            icon: L.divIcon({
+              className: "meeting-center",
+              html: `<div style="background:#d69e2e;color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3)">⭐</div>`,
+              iconSize: [30, 30]
+            })
+          }).addTo(map);
+
+          marker.bindPopup(
+            `<strong>${escapeHtml(groupName)}</strong><br>${escapeHtml(g.addresses[idx])}<br><em>Meeting Center</em>`
+          );
+
+          meetingMarkers.push(marker);
         });
-
-        if (distances.length > 0) {
-            const avgDistance = (distances.reduce(function(sum, d) { return sum + d.distance; }, 0) / distances.length).toFixed(1);
-            const closest = distances.reduce(function(min, d) { return d.distance < min.distance ? d : min; });
-            const farthest = distances.reduce(function(max, d) { return d.distance > max.distance ? d : max; });
-            document.getElementById('distanceInfo').innerHTML = '<strong>📍 Distance Information:</strong><br>Average: ' + avgDistance + ' miles<br>Closest: ' + closest.name + ' (' + closest.distance.toFixed(1) + ' mi)<br>Farthest: ' + farthest.name + ' (' + farthest.distance.toFixed(1) + ' mi)';
-        }
+      }
     }
 
-    const membersContainer = document.getElementById('membersContainer');
-    membersContainer.innerHTML = groupMembers.length > 1 ?
-        groupMembers.map(function(m) { return '<div class="member-item">' + m.firstName + ' ' + m.lastName + ' - ' + m.zipCode + '</div>'; }).join('') :
-        '<div class="member-item">You are the first member! 🎉</div>';
+    function fitMapToAllMarkers() {
+      if (!map) return;
 
-    document.getElementById('groupDisplay').classList.add('show');
-    document.getElementById('groupDisplay').scrollIntoView({behavior: 'smooth', block: 'nearest'});
-}
+      const coords = [];
 
+      allPeople.forEach((p) => {
+        const c = normalizeCoords(p.coordinates);
+        if (c) coords.push([c.lat, c.lon]);
+      });
 
-        function displayAllGroups() {
-            const groups = {};
-            allPeople.forEach(person => { 
-                if (!groups[person.group]) groups[person.group] = []; 
-                groups[person.group].push(person); 
-            updateExportVisibility();
+      for (const groupName in groupLocations) {
+        groupLocations[groupName].coordinates.forEach((raw) => {
+          const c = normalizeCoords(raw);
+          if (c) coords.push([c.lat, c.lon]);
+        });
+      }
 
-            });
-            
-            const groupsContainer = document.getElementById('groupsContainer');
-            groupsContainer.innerHTML = Object.entries(groups).sort((a, b) => b[1].length - a[1].length).map(function(entry) {
-                const groupName = entry[0];
-                const members = entry[1];
-                const zipCodes = [...new Set(members.map(m => m.zipCode))].join(', ');
-                return '<div class="group-card">' +
-                    '<div class="group-card-header">' +
-                    '<div class="group-title">✝️ ' + groupName + '</div>' +
-                    '<div class="group-count">' + members.length + ' ' + (members.length === 1 ? 'member' : 'members') + '</div>' +
-                    '</div>' +
-                    '<div class="location-info"><strong>ZIP Codes:</strong> ' + zipCodes + '</div>' +
-                    '<div class="group-members">' +
-                    members.map(m => '<div class="group-member">' + m.firstName + ' ' + m.lastName + '<br><small>' + m.zipCode + '</small></div>').join('') +
-                    '</div></div>';
-            }).join('');
-            
-            document.getElementById('allGroups').style.display = 'block';
-        }
-
-        function addAnother() {
-            document.getElementById('userForm').reset();
-            document.getElementById('groupDisplay').classList.remove('show');
-            document.getElementById('firstName').focus();
-            window.scrollTo({top: 0, behavior: 'smooth'});
-        }
-        // Show export section when there are people registered
-function updateExportVisibility() {
-    if (allPeople.length > 0) {
-        document.getElementById('exportSection').style.display = 'block';
-    }
-}
-
-// Export to CSV
-function exportToCSV() {
-    if (allPeople.length === 0) {
-        alert('No data to export. Please add members first.');
-        return;
+      if (coords.length === 0) return;
+      const bounds = L.latLngBounds(coords);
+      map.fitBounds(bounds, { padding: [40, 40] });
     }
 
-    let csv = 'First Name,Last Name,Location,ZIP Code,Group';
-    allPeople.forEach(function(p) {
-        csv += '"' + p.firstName + '","' + p.lastName + '","' + p.location + '","' + p.zipCode + '","' + p.group + '';
-    });
+    // -----------------------------
+    // UI RENDER
+    // -----------------------------
+    function displayGroupAssignment(person) {
+      document.getElementById("displayName").textContent = `${person.firstName} ${person.lastName}`;
+      document.getElementById("displayPhone").textContent = formatPhone(person.phone) || "—";
+      document.getElementById("displayLocation").textContent = person.location;
+      document.getElementById("displayZip").textContent = person.zipCode;
+      document.getElementById("displayGroup").textContent = person.group;
 
-    downloadFile(csv, 'shelter_bible_study_groups.csv', 'text/csv');
-}
+      const distText = (typeof person.distanceToGroup === "number")
+        ? `${person.distanceToGroup.toFixed(1)} miles`
+        : "N/A";
 
-// Export to Excel
-function exportToExcel() {
-    if (allPeople.length === 0) {
-        alert('No data to export. Please add members first.');
-        return;
+      const meetingHTML = `
+        <div class="meeting-location">
+          <h4><span>📍</span> Meeting Location</h4>
+          <p><strong>Address:</strong> ${escapeHtml(person.groupAddress ?? "")}</p>
+          <p><strong>Meeting Time:</strong> Sundays at 10:00 AM</p>
+          <p><strong>Distance:</strong> ${escapeHtml(distText)}</p>
+        </div>
+      `;
+      document.getElementById("meetingLocationContainer").innerHTML = meetingHTML;
+
+      const groupMembers = allPeople.filter((p) => p.group === person.group);
+
+      const membersContainer = document.getElementById("membersContainer");
+      if (groupMembers.length <= 1) {
+        membersContainer.innerHTML = `<div class="member-item">You are the first member! 🎉</div>`;
+      } else {
+        membersContainer.innerHTML = groupMembers
+          .map((m) =>
+            `<div class="member-item">
+              ${escapeHtml(m.firstName)} ${escapeHtml(m.lastName)} - ${escapeHtml(m.zipCode)}
+              ${m.phone ? `<br><small>📞 ${escapeHtml(formatPhone(m.phone))}</small>` : ""}
+            </div>`
+          )
+          .join("");
+      }
+
+      const distBox = document.getElementById("distanceInfo");
+      const me = normalizeCoords(person.coordinates);
+
+      if (me && groupMembers.length > 1) {
+        const others = groupMembers
+          .filter((m) => m.timestamp !== person.timestamp)
+          .map((m) => ({ ...m, coordinates: normalizeCoords(m.coordinates) }))
+          .filter((m) => m.coordinates);
+
+        if (others.length > 0) {
+          const distances = others
+            .map((m) => {
+              const d = haversineMiles(me.lat, me.lon, m.coordinates.lat, m.coordinates.lon);
+              return d === null ? null : { name: `${m.firstName} ${m.lastName}`, d };
+            })
+            .filter(Boolean);
+
+          if (distances.length > 0) {
+            const avg = distances.reduce((s, x) => s + x.d, 0) / distances.length;
+            const closest = distances.reduce((min, x) => (x.d < min.d ? x : min));
+            const farthest = distances.reduce((max, x) => (x.d > max.d ? x : max));
+
+            distBox.style.display = "block";
+            distBox.innerHTML =
+              `<strong>📍 Distance to Group Members</strong><br>
+               Average: ${avg.toFixed(1)} miles<br>
+               Closest: ${escapeHtml(closest.name)} (${closest.d.toFixed(1)} mi)<br>
+               Farthest: ${escapeHtml(farthest.name)} (${farthest.d.toFixed(1)} mi)`;
+          } else {
+            distBox.style.display = "none";
+            distBox.innerHTML = "";
+          }
+        } else {
+          distBox.style.display = "none";
+          distBox.innerHTML = "";
+        }
+      } else {
+        distBox.style.display = "none";
+        distBox.innerHTML = "";
+      }
+
+      document.getElementById("groupDisplay").classList.add("show");
+      document.getElementById("groupDisplay").scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
 
-    const ws_data = [['First Name', 'Last Name', 'Location', 'ZIP Code', 'Group']];
-    allPeople.forEach(function(p) {
-        ws_data.push([p.firstName, p.lastName, p.location, p.zipCode, p.group]);
-    });
-
-    const ws = XLSX.utils.aoa_to_sheet(ws_data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Group Assignments');
-    XLSX.writeFile(wb, 'shelter_bible_study_groups.xlsx');
-}
-
-        // Export Group Summary
-        function exportGroupSummary() {
-            if (allPeople.length === 0) {
-                alert('No data to export. Please add members first.');
-                return;
-            }
-
-            const groups = {};
-            allPeople.forEach(function(person) {
-                if (!groups[person.group]) groups[person.group] = [];
-                groups[person.group].push(person);
-            });
-
-            let csv = 'Group Name,Member Count,ZIP Codes,Member Names';
-            Object.entries(groups).forEach(function(entry) {
-                const groupName = entry;
-                const members = entry;
-                const zipCodes = [...new Set(members.map(function(m) { return m.zipCode; }))].join('; ');
-                const memberNames = members.map(function(m) { return m.firstName + ' ' + m.lastName; }).join('; ');
-                csv += '"' + groupName + '","' + members.length + '","' + zipCodes + '","' + memberNames + '"';
-            });
-
-            downloadFile(csv, 'group_summary_report.csv', 'text/csv');
-        }
-
-        // Export with Distance Calculations
-        function exportWithDistances() {
-            if (allPeople.length === 0) {
-                alert('No data to export. Please add members first.');
-                return;
-            }
-
-            let csv = 'First Name,Last Name,Group,ZIP Code,Avg Distance to Group (miles),Closest Member,Farthest Member';
-
-            allPeople.forEach(function(person) {
-                let avgDist = 'N/A';
-                let closestMember = 'N/A';
-                let farthestMember = 'N/A';
-
-                if (person.coordinates) {
-                    const groupMembers = allPeople.filter(function(p) {
-                        return p.group === person.group && p.coordinates && p !== person;
-                    });
-
-                    if (groupMembers.length > 0) {
-                        const distances = groupMembers.map(function(m) {
-                            return {
-                                name: m.firstName + ' ' + m.lastName,
-                                distance: calculateDistance(
-                                    person.coordinates.lat,
-                                    person.coordinates.lon,
-                                    m.coordinates.lat,
-                                    m.coordinates.lon
-                                )
-                            };
-                        });
-
-                        avgDist = (distances.reduce(function(sum, d) { return sum + d.distance; }, 0) / distances.length).toFixed(1);
-                        const closest = distances.reduce(function(min, d) { return d.distance < min.distance ? d : min; });
-                        const farthest = distances.reduce(function(max, d) { return d.distance > max.distance ? d : max; });
-                        closestMember = closest.name + ' (' + closest.distance.toFixed(1) + ' mi)';
-                        farthestMember = farthest.name + ' (' + farthest.distance.toFixed(1) + ' mi)';
-                    }
-                }
-
-                csv += '"' + person.firstName + '","' + person.lastName + '","' + person.group + '","' + person.zipCode + '","' + avgDist + '","' + closestMember + '","' + farthestMember + '"';
-            });
-
-            downloadFile(csv, 'groups_with_distances.csv', 'text/csv');
-        }
-
-        // Helper function to download files
-        function downloadFile(content, filename, mimeType) {
-            const blob = new Blob([content], { type: mimeType });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }
-
-        // Define meeting locations for each group (placeholders)
-const groupMeetingLocations = {
-    'Almighty': '123 Testing Lane, Chicago, IL 60402',
-    'Blessing': '456 Sample Street, Romeoville, IL 60446',
-    'Christ is King': '789 Example Ave, Joliet, IL 60443',
-    'Dependable God': '321 Demo Road, Aurora, IL 60505',
-    'El-Shaddai': '654 Trial Blvd, Naperville, IL 60540',
-    'Fortress': '987 Placeholder Dr, Bolingbrook, IL 60440',
-    'God on High': '147 Test Court, Plainfield, IL 60544',
-    'Helper': '258 Sample Way, Oswego, IL 60543',
-    'Indescribable God': '369 Example Ln, Yorkville, IL 60560',
-    'Jireh': '741 Demo Ave, Montgomery, IL 60538',
-    'King of Kings': '852 Trial St, Bristol, IL 60512',
-    'Lion of Judah': '963 Placeholder Rd, Plano, IL 60545',
-    'Most High': '159 Test Ave, Sandwich, IL 60548',
-    'Nisi': '357 Sample Dr, Somonauk, IL 60552',
-    'Ominipotent': '486 Example Ct, Waterman, IL 60556',
-    'Peace': '624 Demo Ln, Hinckley, IL 60520',
-    'un-Questionable God': '735 Trial Way, Big Rock, IL 60511',
-    'Rapha': '846 Placeholder Ave, Earlville, IL 60518',
-    'Sabaoth': '957 Test Blvd, Leland, IL 60531',
-    'Tsidkenu': '168 Sample Rd, Sheridan, IL 60551',
-    'Unfailing Helper': '279 Example St, Serena, IL 60549',
-    'Very Present Help': '381 Demo Dr, Marseilles, IL 61341',
-    'Wonderous God': '492 Trial Ct, Ottawa, IL 61350',
-    'Xcellent God': '513 Placeholder Ln, Streator, IL 61364',
-    'Yahweh': '624 Test Way, Peru, IL 61354',
-    "Zion's King": '735 Sample Ave, LaSalle, IL 61301'
-};
-
-const MIN_GROUP_THRESHOLD = 3;
-
-// Check if group needs reassignment
-function checkAndReassignSmallGroups(person) {
-    const groups = {};
-    allPeople.forEach(function(p) {
+    function displayAllGroups() {
+      const groups = {};
+      allPeople.forEach((p) => {
         if (!groups[p.group]) groups[p.group] = [];
         groups[p.group].push(p);
-    });
+      });
 
-    const currentGroupSize = groups[person.group].length;
+      const groupsContainer = document.getElementById("groupsContainer");
 
-    if (currentGroupSize < MIN_GROUP_THRESHOLD) {
-        const newGroup = findClosestGroupWithSpace(person, groups);
-        if (newGroup && newGroup !== person.group) {
-            const oldGroup = person.group;
-            person.group = newGroup;
+      groupsContainer.innerHTML = Object.entries(groups)
+        .sort((a, b) => b[1].length - a[1].length)
+        .map(([groupName, members]) => {
+          const zipCodes = [...new Set(members.map((m) => m.zipCode))].join(", ");
+          return `
+            <div class="group-card">
+              <div class="group-card-header">
+                <div class="group-title">✝️ ${escapeHtml(groupName)}</div>
+                <div class="group-count">${members.length} ${members.length === 1 ? "member" : "members"}</div>
+              </div>
+              <div class="location-info"><strong>ZIP Codes:</strong> ${escapeHtml(zipCodes)}</div>
+              <div class="group-members">
+                ${members.map((m) => `
+                  <div class="group-member">
+                    ${escapeHtml(m.firstName)} ${escapeHtml(m.lastName)}<br>
+                    <small>${escapeHtml(m.zipCode)}${m.phone ? " • 📞 " + escapeHtml(formatPhone(m.phone)) : ""}</small>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          `;
+        })
+        .join("");
 
-            allPeople.forEach(function(p) {
-                if (p.group === oldGroup) {
-                    p.group = newGroup;
-                }
-            });
-
-            return {
-                reassigned: true,
-                oldGroup: oldGroup,
-                newGroup: newGroup,
-                reason: 'Group had fewer than ' + MIN_GROUP_THRESHOLD + ' members'
-            };
-        }
+      document.getElementById("allGroups").style.display = allPeople.length > 0 ? "block" : "none";
+      document.getElementById("exportSection").style.display = allPeople.length > 0 ? "block" : "none";
     }
 
-    return { reassigned: false };
-}
+    function refreshMapFromState() {
+      if (allPeople.length === 0) return;
 
-// Find closest group with space
-function findClosestGroupWithSpace(person, groups) {
-    if (!person.coordinates) {
-        let minSize = Infinity;
-        let targetGroup = null;
+      document.getElementById("mapSection").style.display = "block";
+      initMap();
 
-        Object.entries(groups).forEach(function(entry) {
-            const groupName = entry;
-            const members = entry;
-            if (members.length >= MIN_GROUP_THRESHOLD && members.length < maxGroupSize && members.length < minSize) {
-                minSize = members.length;
-                targetGroup = groupName;
+      clearMarkers(memberMarkers);
+      allPeople.forEach((p) => addMemberMarker(p));
+
+      addMeetingCenterMarkers();
+      fitMapToAllMarkers();
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    // -----------------------------
+    // EXPORTS
+    // -----------------------------
+    function downloadFile(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(value) {
+      const s = String(value ?? "");
+      return `"${s.replaceAll('"', '""')}"`;
+    }
+
+    function exportToCSV() {
+      if (allPeople.length === 0) return alert("No data to export.");
+
+      let csv = "First Name,Last Name,Phone,Location,ZIP Code,Group,Group Address,Distance (miles)\n";
+      allPeople.forEach((p) => {
+        csv += [
+          p.firstName, p.lastName, formatPhone(p.phone), p.location, p.zipCode, p.group, p.groupAddress,
+          typeof p.distanceToGroup === "number" ? p.distanceToGroup.toFixed(1) : ""
+        ].map(csvEscape).join(",") + "\n";
+      });
+
+      downloadFile(csv, "shelter_bible_study_groups.csv", "text/csv");
+    }
+
+    function exportToExcel() {
+      if (allPeople.length === 0) return alert("No data to export.");
+
+      const wsData = [
+        ["First Name", "Last Name", "Phone", "Location", "ZIP Code", "Group", "Group Address", "Distance (miles)"]
+      ];
+
+      allPeople.forEach((p) => {
+        wsData.push([
+          p.firstName, p.lastName, formatPhone(p.phone), p.location, p.zipCode, p.group, p.groupAddress, p.distanceToGroup
+        ]);
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Group Assignments");
+      XLSX.writeFile(wb, "shelter_bible_study_groups.xlsx");
+    }
+
+    function exportGroupSummary() {
+      if (allPeople.length === 0) return alert("No data to export.");
+
+      const groups = {};
+      allPeople.forEach((p) => {
+        if (!groups[p.group]) groups[p.group] = [];
+        groups[p.group].push(p);
+      });
+
+      let csv = "Group Name,Member Count,ZIP Codes,Member Names\n";
+      Object.entries(groups).forEach(([groupName, members]) => {
+        const zipCodes = [...new Set(members.map((m) => m.zipCode))].join("; ");
+        const names = members.map((m) => `${m.firstName} ${m.lastName}`).join("; ");
+        csv += [groupName, members.length, zipCodes, names].map(csvEscape).join(",") + "\n";
+      });
+
+      downloadFile(csv, "group_summary_report.csv", "text/csv");
+    }
+
+    function exportWithDistances() {
+      if (allPeople.length === 0) return alert("No data to export.");
+
+      let csv = "First Name,Last Name,Phone,Group,ZIP Code,Avg Distance to Group (miles),Closest Member,Farthest Member\n";
+
+      allPeople.forEach((person) => {
+        let avgDist = "N/A";
+        let closestMember = "N/A";
+        let farthestMember = "N/A";
+
+        const me = normalizeCoords(person.coordinates);
+        if (me) {
+          const groupMembers = allPeople
+            .filter((p) => p.group === person.group && p.timestamp !== person.timestamp)
+            .map((m) => ({ ...m, coordinates: normalizeCoords(m.coordinates) }))
+            .filter((m) => m.coordinates);
+
+          if (groupMembers.length > 0) {
+            const distances = groupMembers
+              .map((m) => {
+                const d = haversineMiles(me.lat, me.lon, m.coordinates.lat, m.coordinates.lon);
+                return d === null ? null : { name: `${m.firstName} ${m.lastName}`, d };
+              })
+              .filter(Boolean);
+
+            if (distances.length > 0) {
+              const avg = distances.reduce((s, x) => s + x.d, 0) / distances.length;
+              const closest = distances.reduce((min, x) => (x.d < min.d ? x : min));
+              const farthest = distances.reduce((max, x) => (x.d > max.d ? x : max));
+
+              avgDist = avg.toFixed(1);
+              closestMember = `${closest.name} (${closest.d.toFixed(1)} mi)`;
+              farthestMember = `${farthest.name} (${farthest.d.toFixed(1)} mi)`;
             }
-        });
+          }
+        }
 
-        return targetGroup || allGroupNames;
+        csv += [
+          person.firstName,
+          person.lastName,
+          formatPhone(person.phone),
+          person.group,
+          person.zipCode,
+          avgDist,
+          closestMember,
+          farthestMember
+        ].map(csvEscape).join(",") + "\n";
+      });
+
+      downloadFile(csv, "groups_with_distances.csv", "text/csv");
     }
 
-    let closestGroup = null;
-    let minDistance = Infinity;
+    // -----------------------------
+    // ADMIN DASHBOARD
+    // -----------------------------
+    function renderAdminTable() {
+      const tbody = document.getElementById("adminTableBody");
+      if (!tbody) return;
 
-    Object.entries(groups).forEach(function(entry) {
-        const groupName = entry;
-        const members = entry;
+      const rows = [...allPeople]
+        .sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""))
+        .map((p) => {
+          const name = `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim();
+          const phone = formatPhone(p.phone) || "";
+          const zip = p.zipCode ?? "";
+          const group = p.group ?? "";
+          const groupAddress = p.groupAddress ?? "";
+          const location = p.location ?? "";
+          const distance = typeof p.distanceToGroup === "number" ? p.distanceToGroup.toFixed(1) : "";
+          const ts = p.timestamp ? new Date(p.timestamp).toLocaleString() : "";
 
-        if (members.length < MIN_GROUP_THRESHOLD || members.length >= maxGroupSize) return;
+          return `
+            <tr>
+              <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${escapeHtml(name)}</td>
+              <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${escapeHtml(phone)}</td>
+              <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${escapeHtml(zip)}</td>
+              <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${escapeHtml(group)}</td>
+              <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${escapeHtml(groupAddress)}</td>
+              <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${escapeHtml(location)}</td>
+              <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${escapeHtml(distance)}</td>
+              <td style="padding:10px; border-bottom:1px solid #e2e8f0;">${escapeHtml(ts)}</td>
+            </tr>
+          `;
+        })
+        .join("");
 
-        const membersWithCoords = members.filter(function(m) { return m.coordinates; });
-        if (membersWithCoords.length === 0) return;
+      tbody.innerHTML = rows || `<tr><td colspan="8" style="padding:12px;">No registrations yet.</td></tr>`;
+    }
 
-        let totalDist = 0;
-        membersWithCoords.forEach(function(m) {
-            totalDist += calculateDistance(
-                person.coordinates.lat,
-                person.coordinates.lon,
-                m.coordinates.lat,
-                m.coordinates.lon
-            );
-        });
+    function adminLogin() {
+      const input = document.getElementById("adminPassword");
+      const error = document.getElementById("adminLoginError");
+      const loginBox = document.getElementById("adminLoginBox");
+      const dash = document.getElementById("adminDashboard");
 
-        const avgDist = totalDist / membersWithCoords.length;
+      if (!input || !error || !loginBox || !dash) return;
 
-        if (avgDist < minDistance) {
-            minDistance = avgDist;
-            closestGroup = groupName;
-        }
+      if (input.value === ADMIN_PASSWORD) {
+        error.style.display = "none";
+        loginBox.style.display = "none";
+        dash.style.display = "block";
+        renderAdminTable();
+      } else {
+        error.style.display = "block";
+      }
+    }
+
+    function adminLogout() {
+      const input = document.getElementById("adminPassword");
+      const loginBox = document.getElementById("adminLoginBox");
+      const dash = document.getElementById("adminDashboard");
+      const error = document.getElementById("adminLoginError");
+
+      if (input) input.value = "";
+      if (error) error.style.display = "none";
+      if (loginBox) loginBox.style.display = "block";
+      if (dash) dash.style.display = "none";
+    }
+
+    // -----------------------------
+    // EVENTS
+    // -----------------------------
+    async function handleSubmit(event) {
+      event.preventDefault();
+
+      const firstName = document.getElementById("firstName").value.trim();
+      const lastName = document.getElementById("lastName").value.trim();
+      const phoneRaw = document.getElementById("phone").value.trim();
+      const location = document.getElementById("location").value.trim();
+
+      const phoneDigits = normalizePhone(phoneRaw);
+      if (!phoneDigits) {
+        alert("Please enter a valid 10-digit US phone number.");
+        return;
+      }
+
+      const zipCode = extractILZipCode(location);
+      if (!zipCode) {
+        alert("Please enter a valid Illinois address with a ZIP code (60xxx format).");
+        return;
+      }
+
+      document.getElementById("loadingSpinner").classList.add("show");
+      document.getElementById("submitBtn").disabled = true;
+
+      const coordinates = await geocodeAddress(location);
+
+      document.getElementById("loadingSpinner").classList.remove("show");
+      document.getElementById("submitBtn").disabled = false;
+
+      if (!coordinates) {
+        alert("Unable to geocode your address. Please check it and try again.");
+        return;
+      }
+
+      const assignment = findNearestGroup(coordinates);
+
+      const person = {
+        firstName,
+        lastName,
+        phone: phoneDigits,     // ✅ store digits consistently
+        location,
+        zipCode,
+        coordinates,            // ✅ normalized coords
+        group: assignment.groupName,
+        groupAddress: assignment.address,
+        distanceToGroup: assignment.distance,
+        timestamp: new Date().toISOString()
+      };
+
+      allPeople.push(person);
+      save();
+      showSuccess();
+
+      displayGroupAssignment(person);
+      displayAllGroups();
+
+      document.getElementById("mapSection").style.display = "block";
+      initMap();
+      addMemberMarker(person);
+      addMeetingCenterMarkers();
+      fitMapToAllMarkers();
+
+      // ✅ If admin is open, refresh it
+      if (document.getElementById("adminDashboard")?.style.display === "block") {
+        renderAdminTable();
+      }
+    }
+
+    function handleAddAnother() {
+      document.getElementById("userForm").reset();
+      document.getElementById("groupDisplay").classList.remove("show");
+      document.getElementById("firstName").focus();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function handleReset() {
+      if (!confirm("Are you sure you want to delete all saved members?")) return;
+
+      allPeople = [];
+      save();
+
+      document.getElementById("groupDisplay").classList.remove("show");
+      document.getElementById("mapSection").style.display = "none";
+      document.getElementById("allGroups").style.display = "none";
+      document.getElementById("exportSection").style.display = "none";
+      document.getElementById("groupsContainer").innerHTML = "";
+
+      if (map) {
+        clearMarkers(memberMarkers);
+        clearMarkers(meetingMarkers);
+      }
+
+      // reset admin view if open
+      adminLogout();
+
+      alert("All data cleared.");
+    }
+
+    // -----------------------------
+    // INIT
+    // -----------------------------
+    document.addEventListener("DOMContentLoaded", () => {
+      load();
+
+      document.getElementById("adminLoginBtn")?.addEventListener("click", adminLogin);
+      document.getElementById("adminRefreshBtn")?.addEventListener("click", renderAdminTable);
+      document.getElementById("adminLogoutBtn")?.addEventListener("click", adminLogout);
+
+      document.getElementById("userForm").addEventListener("submit", handleSubmit);
+      document.getElementById("addAnotherBtn").addEventListener("click", handleAddAnother);
+      document.getElementById("resetBtn").addEventListener("click", handleReset);
+
+      document.getElementById("exportCsvBtn").addEventListener("click", exportToCSV);
+      document.getElementById("exportXlsxBtn").addEventListener("click", exportToExcel);
+      document.getElementById("exportSummaryBtn").addEventListener("click", exportGroupSummary);
+      document.getElementById("exportDistancesBtn").addEventListener("click", exportWithDistances);
+
+      if (allPeople.length > 0) {
+        displayAllGroups();
+        refreshMapFromState();
+      }
     });
-
-    return closestGroup || allGroupNames;
-}
-
-// Get meeting location
-function getMeetingLocation(groupName) {
-    return groupMeetingLocations[groupName] || 'Location to be announced';
-}
-
-
-
-     </script>
-    
-</div> 
-
+  </script>
 </body>
 </html>
-
-```
