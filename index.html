@@ -395,13 +395,13 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbxDMYYqm32pjCTly810-86T1NX9b964tazvCFBcOBOrXoTywCq_gu-NwhFQuKGUV5GDLQ/exec";
 
     // 2) Must match ADMIN_KEY in your Apps Script
-    const ADMIN_KEY = "VICTORYHOUSE"; // change if you want
+    const ADMIN_KEY = "VICTORYHOUSE";
 
     // 3) Local fallback cache (optional)
     const STORAGE_KEY_DATA = "shelterBibleStudyData_v2_local_fallback";
 
     // Admin password (client-side only; not truly secure)
-    const ADMIN_PASSWORD = "Shelter123!"; // change if you want
+    const ADMIN_PASSWORD = "Shelter123!";
 
     // ============================================================
     // MEETING CENTERS (spreadsheet locations)
@@ -440,7 +440,7 @@
     // ============================================================
     // STATE
     // ============================================================
-    let allPeople = [];              // this will reflect central sheet data once loaded
+    let allPeople = [];              // reflects central sheet data once loaded
     let map = null;
     let memberMarkers = [];
     let meetingMarkers = [];
@@ -510,6 +510,18 @@
       setTimeout(() => el.classList.remove("show"), 2500);
     }
 
+    function safeLower(s) {
+      return String(s ?? "").toLowerCase();
+    }
+
+    function ordinal(n) {
+      const num = Number(n);
+      if (!Number.isFinite(num)) return `${n}`;
+      const s = ["th", "st", "nd", "rd"];
+      const v = num % 100;
+      return num + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
+
     // ============================================================
     // CENTRAL API (Google Apps Script)
     // ============================================================
@@ -520,6 +532,7 @@
 
       const res = await fetch(API_URL, {
         method: "POST",
+        // NOTE: Apps Script Web Apps often behave best with text/plain.
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(person),
       });
@@ -544,7 +557,8 @@
         throw new Error(data.error || "Failed to fetch members from central sheet.");
       }
 
-      return data.rows || [];
+      // Could be `rows` (arrays) or `members` or similar depending on your Apps Script.
+      return data.rows || data.members || data.data || [];
     }
 
     // ============================================================
@@ -735,6 +749,59 @@
     // ============================================================
     // UI RENDER
     // ============================================================
+    function renderGroupMembersFromState(person) {
+      const membersContainer = document.getElementById("membersContainer");
+
+      const groupMembers = allPeople
+        .filter(p => p.group === person.group)
+        .sort((a, b) => (a.timestamp || "").localeCompare(b.timestamp || ""));
+
+      // Find THIS person's position (best effort match)
+      const matchIndex = groupMembers.findIndex(m =>
+        m.timestamp === person.timestamp ||
+        (
+          safeLower(m.firstName) === safeLower(person.firstName) &&
+          safeLower(m.lastName) === safeLower(person.lastName) &&
+          String(m.phone || "") === String(person.phone || "") &&
+          String(m.zipCode || "") === String(person.zipCode || "")
+        )
+      );
+
+      const myPos = (matchIndex >= 0 ? matchIndex + 1 : groupMembers.length);
+      const total = groupMembers.length;
+
+      const others = groupMembers.filter((_, idx) => idx !== matchIndex);
+
+      if (total <= 1) {
+        membersContainer.innerHTML = `<div class="member-item">You are the 1st member in this group! 🎉</div>`;
+        return;
+      }
+
+      const headerHtml = `
+        <div class="member-item" style="border-left-color:#38a169;">
+          <strong>You’re the ${escapeHtml(ordinal(myPos))} member</strong> in this group ✅<br>
+          <small>Total members in your group: ${escapeHtml(total)}</small>
+        </div>
+        <div class="member-item" style="opacity:0.95;">
+          <strong>Other members in your group include:</strong>
+        </div>
+      `;
+
+      const listHtml = others.map(m => {
+        const name = `${m.firstName} ${m.lastName}`.trim();
+        const phone = formatPhone(m.phone);
+        const zip = m.zipCode || "";
+        return `
+          <div class="member-item">
+            ${escapeHtml(name || "Member")} — ${escapeHtml(zip)}
+            ${phone ? `<br><small>📞 ${escapeHtml(phone)}</small>` : ""}
+          </div>
+        `;
+      }).join("");
+
+      membersContainer.innerHTML = headerHtml + listHtml;
+    }
+
     function displayGroupAssignment(person) {
       document.getElementById("displayName").textContent = `${person.firstName} ${person.lastName}`;
       document.getElementById("displayPhone").textContent = formatPhone(person.phone) || "—";
@@ -756,23 +823,12 @@
       `;
       document.getElementById("meetingLocationContainer").innerHTML = meetingHTML;
 
-      const groupMembers = allPeople.filter((p) => p.group === person.group);
+      // Always render members from the current loaded sheet state
+      renderGroupMembersFromState(person);
 
-      const membersContainer = document.getElementById("membersContainer");
-      if (groupMembers.length <= 1) {
-        membersContainer.innerHTML = `<div class="member-item">You are the first member! 🎉</div>`;
-      } else {
-        membersContainer.innerHTML = groupMembers
-          .map((m) =>
-            `<div class="member-item">
-              ${escapeHtml(m.firstName)} ${escapeHtml(m.lastName)} - ${escapeHtml(m.zipCode)}
-              ${m.phone ? `<br><small>📞 ${escapeHtml(formatPhone(m.phone))}</small>` : ""}
-            </div>`
-          )
-          .join("");
-      }
-
+      // Optional distance-to-members box (kept from your original logic, but uses state)
       const distBox = document.getElementById("distanceInfo");
+      const groupMembers = allPeople.filter((p) => p.group === person.group);
       const me = normalizeCoords(person.coordinates);
 
       if (me && groupMembers.length > 1) {
@@ -904,7 +960,6 @@
         loginBox.style.display = "none";
         dash.style.display = "block";
 
-        // load central members then render
         adminRefreshCentral().catch((e) => alert("Admin load failed: " + e.message));
       } else {
         error.style.display = "block";
@@ -926,35 +981,86 @@
     async function adminRefreshCentral() {
       const members = await apiFetchMembers();
       allPeople = normalizeMembersFromSheet(members);
-      saveLocalFallback(); // keep a local backup
+      saveLocalFallback();
       renderAdminTable();
       displayAllGroups();
       refreshMapFromState();
     }
 
-    function normalizeMembersFromSheet(members) {
-      return (members || []).map((m) => {
+    // IMPORTANT: robust normalization from Apps Script response
+    function normalizeMembersFromSheet(rowsOrObjects) {
+      if (!rowsOrObjects || !Array.isArray(rowsOrObjects) || rowsOrObjects.length === 0) return [];
+
+      const first = rowsOrObjects[0];
+
+      // Case A: rows are arrays and first row is a header row
+      if (Array.isArray(first)) {
+        const headerRow = first.map(h => String(h ?? "").trim());
+        const headerLooksLikeHeader =
+          headerRow.some(h => safeLower(h).includes("firstname")) ||
+          headerRow.some(h => safeLower(h).includes("timestamp")) ||
+          headerRow.some(h => safeLower(h) === "zipcode") ||
+          headerRow.some(h => safeLower(h) === "group");
+
+        const startIndex = headerLooksLikeHeader ? 1 : 0;
+        const headers = headerLooksLikeHeader ? headerRow : [];
+
+        const idx = (name) => headers.findIndex(h => safeLower(h) === safeLower(name));
+
+        return rowsOrObjects.slice(startIndex).map((rowArr) => {
+          const get = (key, fallbackIndex = -1) => {
+            if (headers.length) {
+              const i = idx(key);
+              if (i >= 0) return rowArr[i];
+            }
+            if (fallbackIndex >= 0) return rowArr[fallbackIndex];
+            return "";
+          };
+
+          const lat = Number(get("lat"));
+          const lon = Number(get("lon"));
+          const distance = Number(get("distanceToGroup"));
+
+          return {
+            timestamp: String(get("timestamp") || ""),
+            firstName: String(get("firstName") || ""),
+            lastName: String(get("lastName") || ""),
+            phone: normalizePhone(get("phone")) || String(get("phone") || ""),
+            location: String(get("location") || ""),
+            zipCode: String(get("zipCode") || ""),
+            group: String(get("group") || ""),
+            groupAddress: String(get("groupAddress") || ""),
+            distanceToGroup: Number.isFinite(distance) ? distance : null,
+            coordinates: (Number.isFinite(lat) && Number.isFinite(lon)) ? { lat, lon } : null
+          };
+        }).filter(p => p.firstName || p.lastName || p.phone || p.zipCode || p.group);
+      }
+
+      // Case B: rows are objects
+      return rowsOrObjects.map((m) => {
         const lat = Number(m.lat);
         const lon = Number(m.lon);
-        const distanceMiles = Number(m.distanceMiles);
+
+        const distance =
+          Number(m.distanceToGroup ?? m.distanceMiles ?? m.distance ?? m.distance_miles);
 
         return {
-          timestamp: m.timestamp || "",
-          firstName: m.firstName || "",
-          lastName: m.lastName || "",
-          phone: normalizePhone(m.phone) || (m.phone || ""),
-          location: m.location || "",
-          zipCode: m.zipCode || "",
-          group: m.group || "",
-          groupAddress: m.groupAddress || "",
-          distanceToGroup: Number.isFinite(distanceMiles) ? distanceMiles : null,
+          timestamp: String(m.timestamp || ""),
+          firstName: String(m.firstName || ""),
+          lastName: String(m.lastName || ""),
+          phone: normalizePhone(m.phone) || String(m.phone || ""),
+          location: String(m.location || ""),
+          zipCode: String(m.zipCode || ""),
+          group: String(m.group || ""),
+          groupAddress: String(m.groupAddress || ""),
+          distanceToGroup: Number.isFinite(distance) ? distance : null,
           coordinates: (Number.isFinite(lat) && Number.isFinite(lon)) ? { lat, lon } : null
         };
-      });
+      }).filter(p => p.firstName || p.lastName || p.phone || p.zipCode || p.group);
     }
 
     // ============================================================
-    // EXPORTS (exports whatever is currently loaded into allPeople)
+    // EXPORTS
     // ============================================================
     function downloadFile(content, filename, mimeType) {
       const blob = new Blob([content], { type: mimeType });
@@ -1131,7 +1237,6 @@
       const assignment = findNearestGroup(coordinates);
 
       const person = {
-        // what we save to the central sheet
         firstName,
         lastName,
         phone: phoneDigits,
@@ -1155,20 +1260,24 @@
         // fallback (still keep a record locally)
         allPeople.push(person);
         saveLocalFallback();
+
         displayGroupAssignment(person);
         displayAllGroups();
         refreshMapFromState();
+
+        if (document.getElementById("adminDashboard")?.style.display === "block") {
+          renderAdminTable();
+        }
         return;
       }
 
-      // After central save, pull the latest central list so admin + groups reflect reality
+      // After central save, pull the latest central list so group counts reflect reality
       try {
         const members = await apiFetchMembers();
         allPeople = normalizeMembersFromSheet(members);
         saveLocalFallback();
       } catch (err) {
         console.warn("Central refresh failed (using local state):", err);
-        // still show newly created person locally
         allPeople.push(person);
         saveLocalFallback();
       }
@@ -1177,7 +1286,6 @@
       displayAllGroups();
       refreshMapFromState();
 
-      // If admin is open, refresh table
       if (document.getElementById("adminDashboard")?.style.display === "block") {
         renderAdminTable();
       }
@@ -1215,7 +1323,6 @@
     // INIT
     // ============================================================
     document.addEventListener("DOMContentLoaded", async () => {
-      // Bind events
       document.getElementById("userForm").addEventListener("submit", handleSubmit);
       document.getElementById("addAnotherBtn").addEventListener("click", handleAddAnother);
       document.getElementById("resetBtn").addEventListener("click", handleReset);
@@ -1236,7 +1343,7 @@
         }
       });
 
-      // Startup: try load central data ONLY if API_URL set; otherwise load local fallback
+      // Load local fallback first (fast UI)
       const localFallback = loadLocalFallback();
       if (localFallback.length > 0) {
         allPeople = localFallback.map(p => ({
@@ -1247,14 +1354,19 @@
         refreshMapFromState();
       }
 
+      // Preload central data (requires ADMIN_KEY)
       if (API_URL && !API_URL.includes("PASTE_YOUR")) {
         try {
-          // Optional: preload central data for map/group view (requires ADMIN_KEY)
           const members = await apiFetchMembers();
           allPeople = normalizeMembersFromSheet(members);
           saveLocalFallback();
           displayAllGroups();
           refreshMapFromState();
+
+          // If admin already open (rare), refresh
+          if (document.getElementById("adminDashboard")?.style.display === "block") {
+            renderAdminTable();
+          }
         } catch (err) {
           console.warn("Central preload failed (using local fallback):", err);
         }
