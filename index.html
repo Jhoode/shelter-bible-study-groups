@@ -392,10 +392,10 @@
     // ============================================================
     // 1) Deploy your Apps Script as a Web App, then paste the exec URL below.
     // Example: https://script.google.com/macros/s/AKfycb.../exec
-    const API_URL = "https://script.google.com/macros/s/AKfycbw6lb_mlMuxjbzNtuTME383X0dElQMEkFPwfkNeA4jnt2UsXtYSLaC4YpekIyhNWgZr/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxDMYYqm32pjCTly810-86T1NX9b964tazvCFBcOBOrXoTywCq_gu-NwhFQuKGUV5GDLQ/exec";
 
     // 2) Must match ADMIN_KEY in your Apps Script
-    const ADMIN_KEY = "VICTORYHOUSE";
+    const ADMIN_KEY = "VICTORYHOUSE"; // change if you want
 
     // 3) Local fallback cache (optional)
     const STORAGE_KEY_DATA = "shelterBibleStudyData_v2_local_fallback";
@@ -409,19 +409,19 @@
     const groupLocations = {
       "Sabaoth": {
         addresses: ["497 N Frieh Drive, Romeoville, IL 60446"],
-        coordinates: [{ lat: 41.6784, lon: -88.0863 }],
+        coordinates: [{ lat: 41.6784, lon: -88.0863 }]
       },
       "Ever Present Help": {
-        addresses: ["4352 W Parker Ave, Chicago, IL 60639"],
-        coordinates: [{ lat: 41.9486, lon: -87.7384 }]
+        addresses: ["8401 Foxborough Way, Joliet, IL 60431"],
+        coordinates: [{ lat: 41.528, lon: -88.187 }]
       },
       "Kaddosh": {
         addresses: ["1336 Greenwillow Lane, Glenview, IL 60025"],
         coordinates: [{ lat: 42.0697, lon: -87.8278 }]
       },
       "unQuestionable God": {
-        addresses: ["1816 Grove Ave, Berwyn, IL 60402"],
-        coordinates: [{ lat: 41.8506, lon: -87.7937 }]
+        addresses: ["25549 W Cerena Cir, Plainfield, IL 60586"],
+        coordinates: [{ lat: 41.6426, lon: -88.1175 }]
       },
       "Indescribable God": {
         addresses: ["361 S Cornerstone Dr, Volo, IL 60020"],
@@ -544,7 +544,7 @@
         throw new Error(data.error || "Failed to fetch members from central sheet.");
       }
 
-      return data.members || [];
+      return data.rows || [];
     }
 
     // ============================================================
@@ -1263,4 +1263,3 @@
   </script>
 </body>
 </html>
-
