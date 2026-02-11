@@ -1,0 +1,2740 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Social Platform</title>
+    <style>
+        :root {
+            --font-size-base: 16px;
+            
+            /* Dark Rich Color Palette */
+            --primary-bg: #1a0a0e;
+            --secondary-bg: #2c1517;
+            --tertiary-bg: #3d1f23;
+            --card-bg: #2a1215;
+            
+            /* Accent Colors */
+            --accent-coral: #ff6b6b;
+            --accent-pink: #ff4d6d;
+            --accent-purple: #c77dff;
+            --accent-blue: #4cc9f0;
+            --accent-green: #06ffa5;
+            
+            /* Text Colors */
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8b8;
+            --text-muted: #7a7a7a;
+            
+            /* Gradients */
+            --gradient-coral: linear-gradient(135deg, #ff6b6b, #ff4d6d);
+            --gradient-purple: linear-gradient(135deg, #c77dff, #9d4edd);
+            --gradient-rainbow: linear-gradient(135deg, #06ffa5, #4cc9f0, #c77dff, #ff4d6d);
+            --gradient-story: linear-gradient(135deg, #06ffa5, #4cc9f0);
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 20px rgba(255, 107, 107, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: var(--font-size-base);
+            background: var(--primary-bg);
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(199, 125, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 107, 107, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 0;
+            line-height: 1.6;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--secondary-bg);
+            min-height: 100vh;
+            padding: 0;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        h1 {
+            font-size: calc(var(--font-size-base) * 2);
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: calc(var(--font-size-base) * 1.5);
+            margin-bottom: 16px;
+        }
+
+        h3 {
+            font-size: calc(var(--font-size-base) * 1.25);
+            margin-bottom: 12px;
+        }
+
+        /* Accessibility Controls */
+        .accessibility-bar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 0 0 0 16px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .accessibility-bar span {
+            font-weight: 600;
+            font-size: calc(var(--font-size-base) * 0.8);
+        }
+
+        .accessibility-bar button {
+            background: var(--gradient-coral);
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: calc(var(--font-size-base) * 0.8);
+            font-weight: 700;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .accessibility-bar button:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Auth Section Styling */
+        #authSection {
+            padding: 40px 24px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: calc(var(--font-size-base) * 0.9);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-size: calc(var(--font-size-base) * 1);
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        input:hover, textarea:hover, select:hover {
+            border-color: rgba(255, 107, 107, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-coral);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+        }
+
+        /* Buttons */
+        button {
+            background: var(--gradient-coral);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: calc(var(--font-size-base) * 0.95);
+            font-weight: 700;
+            margin-right: 10px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            letter-spacing: 0.02em;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:focus {
+            outline: 3px solid rgba(255, 107, 107, 0.5);
+            outline-offset: 2px;
+        }
+
+        /* Messages */
+        .success-message, .error-message {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: none;
+            font-size: calc(var(--font-size-base) * 0.95);
+            font-weight: 600;
+            box-shadow: var(--shadow-md);
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #06ffa5, #00d084);
+            color: var(--primary-bg);
+        }
+
+        .error-message {
+            background: var(--gradient-coral);
+            color: white;
+        }
+
+        /* User Info Header */
+        .user-info {
+            background: var(--card-bg);
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gradient-rainbow);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: calc(var(--font-size-base) * 1.3);
+            font-weight: 700;
+            box-shadow: var(--shadow-md);
+            border: 3px solid var(--secondary-bg);
+        }
+
+        .user-info h2 {
+            font-size: calc(var(--font-size-base) * 1.1);
+            margin-bottom: 4px;
+        }
+
+        #userBio {
+            font-size: calc(var(--font-size-base) * 0.85);
+            color: var(--text-secondary);
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--card-bg);
+            position: sticky;
+            top: 88px;
+            z-index: 99;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tab {
+            padding: 16px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: calc(var(--font-size-base) * 0.9);
+            font-weight: 700;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+            transform: none;
+        }
+
+        .nav-tab.active {
+            border-bottom-color: var(--accent-coral);
+            color: var(--text-primary);
+        }
+
+        /* Feed Container */
+        .feed-container {
+            max-width: 100%;
+            padding: 0;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            padding: 16px 24px;
+            background: var(--card-bg);
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: calc(var(--font-size-base) * 0.95);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Feed Filters */
+        .feed-filters {
+            display: flex;
+            gap: 10px;
+            padding: 16px 24px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .feed-filters::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: calc(var(--font-size-base) * 0.85);
+            font-weight: 700;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: var(--gradient-coral);
+            color: white;
+            border-color: transparent;
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Group Cards */
+        .group-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 24px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .group-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            border-color: rgba(255, 107, 107, 0.3);
+        }
+
+        .group-card h3 {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            font-size: calc(var(--font-size-base) * 1.2);
+        }
+
+        .group-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        /* Posts */
+        .post {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 0;
+            margin: 16px 24px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .post:hover {
+            box-shadow: var(--shadow-md);
+            border-color: rgba(255, 107, 107, 0.2);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 100%);
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-story);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid var(--card-bg);
+        }
+
+        .post-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-author-name {
+            font-weight: 700;
+            font-size: calc(var(--font-size-base) * 0.95);
+            color: var(--text-primary);
+        }
+
+        .post-time {
+            font-size: calc(var(--font-size-base) * 0.8);
+            color: var(--text-muted);
+        }
+
+        .post-content {
+            color: var(--text-primary);
+            line-height: 1.7;
+            padding: 0 20px 16px 20px;
+            font-size: calc(var(--font-size-base) * 0.95);
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .post-action-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: calc(var(--font-size-base) * 0.85);
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .post-action-btn:hover {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--accent-coral);
+            border-color: var(--accent-coral);
+            transform: none;
+        }
+
+        .post-action-btn.liked {
+            background: var(--gradient-coral);
+            color: white;
+            border-color: transparent;
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Comments */
+        .comments-section {
+            margin-top: 0;
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .comment {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--accent-coral);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: calc(var(--font-size-base) * 0.85);
+        }
+
+        .comment-author {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .comment-content {
+            font-size: calc(var(--font-size-base) * 0.85);
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        .comment-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .comment-input input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 10px 16px;
+        }
+
+        .comment-input button {
+            margin: 0;
+            padding: 10px 20px;
+            border-radius: 24px;
+        }
+
+        /* Badges */
+        .member-badge {
+            display: inline-block;
+            background: var(--gradient-purple);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: calc(var(--font-size-base) * 0.8);
+            font-weight: 700;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .notification-badge {
+            background: var(--gradient-coral);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: calc(var(--font-size-base) * 0.7);
+            font-weight: 700;
+            margin-left: 6px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: calc(var(--font-size-base) * 4);
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        /* Skip Link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-coral);
+            color: white;
+            padding: 10px 16px;
+            text-decoration: none;
+            z-index: 100;
+            border-radius: 0 0 12px 0;
+            font-weight: 700;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* View Containers */
+        #myGroupsView, #allGroupsView, #createGroupView, #groupDetailView, #profileView {
+            padding: 24px 0;
+        }
+
+        #myGroupsView h2, #allGroupsView h2, #createGroupView h2, #groupDetailView h2, #profileView h2 {
+            padding: 0 24px;
+        }
+
+        #createGroupView form, #profileView form {
+            padding: 0 24px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+
+            .user-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+
+
+        .user-info {
+                background: #f5f5f5;
+                padding: 20px;
+                border-radius: 5px;
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+
+            .user-profile {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .user-avatar {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                background: var(--primary-color);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: calc(var(--font-size-base) * 1.5);
+                font-weight: bold;
+            }
+
+            .nav-tabs {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+                border-bottom: 2px solid var(--border-color);
+                flex-wrap: wrap;
+            }
+
+            .nav-tab {
+                padding: 12px 24px;
+                background: transparent;
+                border: none;
+                border-bottom: 3px solid transparent;
+                cursor: pointer;
+                font-size: calc(var(--font-size-base) * 1);
+                color: var(--text-color);
+                transition: all 0.3s ease;
+            }
+
+            .nav-tab:hover {
+                background: #f5f5f5;
+                transform: none;
+            }
+
+            .nav-tab.active {
+                border-bottom-color: var(--primary-color);
+                color: var(--primary-color);
+                font-weight: bold;
+            }
+
+            /* Feed & Search Styles */
+            .feed-container {
+                max-width: 800px;
+                margin: 0 auto;
+            }
+
+            .search-bar {
+                margin-bottom: 20px;
+            }
+
+            .search-bar input {
+                width: 100%;
+                padding: 12px 20px;
+                border-radius: 25px;
+                border: 2px solid var(--border-color);
+                font-size: calc(var(--font-size-base) * 1);
+            }
+
+            .feed-filters {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+            }
+
+            .filter-btn {
+                padding: 8px 16px;
+                background: #f0f0f0;
+                border: 2px solid var(--border-color);
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: calc(var(--font-size-base) * 0.875);
+                transition: all 0.3s ease;
+            }
+
+            .filter-btn.active {
+                background: var(--primary-color);
+                color: white;
+                border-color: var(--primary-color);
+            }
+
+            /* Group Card Styles */
+            .group-card {
+                background: #f9f9f9;
+                border: 2px solid var(--border-color);
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 15px;
+                transition: all 0.3s ease;
+            }
+
+            .group-card:hover {
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                transform: translateY(-2px);
+            }
+
+            .group-card h3 {
+                color: var(--primary-color);
+                margin-bottom: 10px;
+                font-size: calc(var(--font-size-base) * 1.25);
+            }
+
+            /* Post Styles */
+            .post {
+                background: white;
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 15px;
+                transition: all 0.3s ease;
+            }
+
+            .post:hover {
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+
+            .post-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+
+            .post-author {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .post-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: var(--primary-color);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+            }
+
+            .post-info {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .post-author-name {
+                font-weight: bold;
+                font-size: calc(var(--font-size-base) * 1);
+            }
+
+            .post-time {
+                font-size: calc(var(--font-size-base) * 0.875);
+                color: #666;
+            }
+
+            .post-content {
+                color: var(--text-color);
+                line-height: 1.8;
+                margin-bottom: 15px;
+                font-size: calc(var(--font-size-base) * 1);
+            }
+
+            .post-actions {
+                display: flex;
+                gap: 15px;
+                padding-top: 10px;
+                border-top: 1px solid var(--border-color);
+            }
+
+            .post-action-btn {
+                background: transparent;
+                color: #666;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: calc(var(--font-size-base) * 0.875);
+                transition: all 0.3s ease;
+            }
+
+            .post-action-btn:hover {
+                background: #f0f0f0;
+                color: var(--primary-color);
+                transform: none;
+            }
+
+            .post-action-btn.liked {
+                color: var(--error-color);
+            }
+
+            /* Comments Styles */
+            .comments-section {
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 1px solid var(--border-color);
+            }
+
+            .comment {
+                background: #f9f9f9;
+                padding: 12px;
+                border-radius: 5px;
+                margin-bottom: 10px;
+            }
+
+            .comment-header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 8px;
+                font-size: calc(var(--font-size-base) * 0.875);
+            }
+
+            .comment-author {
+                font-weight: bold;
+            }
+
+            .comment-content {
+                font-size: calc(var(--font-size-base) * 0.875);
+                line-height: 1.6;
+            }
+
+            .comment-input {
+                display: flex;
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            .comment-input input {
+                flex: 1;
+            }
+
+            .comment-input button {
+                margin: 0;
+                padding: 8px 16px;
+            }
+
+            /* Badges & Notifications */
+            .member-badge {
+                display: inline-block;
+                background: var(--primary-color);
+                color: white;
+                padding: 5px 12px;
+                border-radius: 15px;
+                font-size: calc(var(--font-size-base) * 0.875);
+                margin-right: 5px;
+                margin-bottom: 5px;
+            }
+
+            .notification-badge {
+                background: var(--error-color);
+                color: white;
+                border-radius: 50%;
+                padding: 2px 6px;
+                font-size: calc(var(--font-size-base) * 0.75);
+                margin-left: 5px;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 40px;
+                color: #666;
+            }
+
+            .empty-state-icon {
+                font-size: calc(var(--font-size-base) * 3);
+                margin-bottom: 15px;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .container {
+                    padding: 15px;
+                }
+
+                .user-info {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 15px;
+                }
+
+                .nav-tabs {
+                    overflow-x: auto;
+                }
+
+                .post-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 10px;
+                }
+            }
+
+            /* Fix for section visibility */
+            .section {
+                display: none;
+                animation: fadeInUp 0.4s ease;
+            }
+
+            .section.active {
+                display: block;
+                position: relative;
+                z-index: 1;
+            }
+
+            /* Ensure auth section is completely hidden when not active */
+            #authSection:not(.active) {
+                display: none !important;
+                visibility: hidden;
+            }
+
+            /* Ensure dashboard takes full control when active */
+            #dashboardSection.active {
+                display: block;
+                min-height: 100vh;
+                background: var(--secondary-bg);
+            }
+
+                        /* Story Circles Section */
+            .stories-container {
+                padding: 16px 24px;
+                background: var(--card-bg);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                position: sticky;
+                top: 88px;
+                z-index: 98;
+            }
+
+            .stories-container::-webkit-scrollbar {
+                display: none;
+            }
+
+            .stories-wrapper {
+                display: flex;
+                gap: 16px;
+                padding-bottom: 4px;
+            }
+
+            .story-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                transition: transform 0.2s ease;
+                min-width: 70px;
+            }
+
+            .story-item:hover {
+                transform: scale(1.05);
+            }
+
+            .story-avatar-wrapper {
+                position: relative;
+                width: 64px;
+                height: 64px;
+            }
+
+            .story-avatar {
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                background: var(--gradient-story);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: calc(var(--font-size-base) * 1.2);
+                box-shadow: var(--shadow-md);
+                border: 3px solid transparent;
+                background-clip: padding-box;
+                position: relative;
+            }
+
+            .story-avatar::before {
+                content: '';
+                position: absolute;
+                top: -3px;
+                left: -3px;
+                right: -3px;
+                bottom: -3px;
+                border-radius: 50%;
+                background: var(--gradient-rainbow);
+                z-index: -1;
+            }
+
+            .story-avatar.viewed {
+                opacity: 0.6;
+            }
+
+            .story-avatar.viewed::before {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            .story-name {
+                font-size: calc(var(--font-size-base) * 0.75);
+                color: var(--text-secondary);
+                text-align: center;
+                max-width: 70px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-weight: 600;
+            }
+
+            .story-badge {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                width: 20px;
+                height: 20px;
+                background: var(--gradient-coral);
+                border-radius: 50%;
+                border: 2px solid var(--card-bg);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: calc(var(--font-size-base) * 0.65);
+                font-weight: 700;
+                color: white;
+            }
+
+            /* Add Your Story Button */
+            .add-story {
+                position: relative;
+            }
+
+            .add-story .story-avatar {
+                background: rgba(255, 255, 255, 0.1);
+                border: 2px dashed rgba(255, 255, 255, 0.3);
+            }
+
+            .add-story .story-avatar::before {
+                display: none;
+            }
+
+            .add-story .story-avatar::after {
+                content: '+';
+                font-size: calc(var(--font-size-base) * 2);
+                color: var(--accent-coral);
+            }
+
+                        /* Bottom Navigation Bar */
+            .bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                max-width: 480px;
+                width: 100%;
+                background: var(--card-bg);
+                backdrop-filter: blur(20px);
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 12px 0;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 1000;
+                box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
+            }
+
+            .bottom-nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                cursor: pointer;
+                padding: 8px 16px;
+                border-radius: 12px;
+                transition: all 0.2s ease;
+                position: relative;
+            }
+
+            .bottom-nav-item:hover {
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            .bottom-nav-item.active {
+                background: rgba(255, 107, 107, 0.1);
+            }
+
+            .bottom-nav-icon {
+                font-size: calc(var(--font-size-base) * 1.5);
+                transition: all 0.2s ease;
+            }
+
+            .bottom-nav-item.active .bottom-nav-icon {
+                color: var(--accent-coral);
+                transform: scale(1.1);
+            }
+
+            .bottom-nav-label {
+                font-size: calc(var(--font-size-base) * 0.65);
+                color: var(--text-secondary);
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .bottom-nav-item.active .bottom-nav-label {
+                color: var(--accent-coral);
+            }
+
+            .bottom-nav-badge {
+                position: absolute;
+                top: 4px;
+                right: 8px;
+                background: var(--gradient-coral);
+                color: white;
+                border-radius: 50%;
+                width: 18px;
+                height: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: calc(var(--font-size-base) * 0.65);
+                font-weight: 700;
+                box-shadow: var(--shadow-sm);
+            }
+
+            /* Add padding to content to account for bottom nav */
+            #dashboardSection {
+                padding-bottom: 80px;
+            }
+
+            /* Hide original nav tabs on mobile */
+            @media (max-width: 768px) {
+                .nav-tabs {
+                    display: none;
+                }
+
+                .bottom-nav {
+                    display: flex;
+                }
+            }
+
+            @media (min-width: 769px) {
+                .bottom-nav {
+                    display: none;
+                }
+            }
+
+            /* Profile Customization Styles */
+            .profile-header {
+                position: relative;
+                margin: -40px -40px 24px -40px;
+                height: 200px;
+                border-radius: 16px 16px 0 0;
+                overflow: hidden;
+            }
+
+            .profile-cover {
+                width: 100%;
+                height: 100%;
+                background: var(--gradient-rainbow);
+                position: relative;
+            }
+
+            .profile-cover.pattern-1 {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+
+            .profile-cover.pattern-2 {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            }
+
+            .profile-cover.pattern-3 {
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            }
+
+            .profile-cover.pattern-4 {
+                background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            }
+
+            .profile-cover.pattern-5 {
+                background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            }
+
+            .profile-avatar-large {
+                position: absolute;
+                bottom: -50px;
+                left: 24px;
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                background: var(--gradient-rainbow);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: calc(var(--font-size-base) * 2.5);
+                font-weight: 700;
+                box-shadow: var(--shadow-lg);
+                border: 4px solid var(--secondary-bg);
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .profile-avatar-large:hover {
+                transform: scale(1.05);
+            }
+
+            .profile-edit-btn {
+                position: absolute;
+                bottom: 16px;
+                right: 16px;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(10px);
+                color: white;
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-size: calc(var(--font-size-base) * 0.85);
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .profile-edit-btn:hover {
+                background: rgba(0, 0, 0, 0.8);
+            }
+
+            .profile-info-section {
+                margin-top: 60px;
+                padding: 0 24px;
+            }
+
+            .profile-stats {
+                display: flex;
+                gap: 24px;
+                margin: 20px 0;
+                padding: 20px;
+                background: var(--card-bg);
+                border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .profile-stat {
+                flex: 1;
+                text-align: center;
+            }
+
+            .profile-stat-value {
+                font-size: calc(var(--font-size-base) * 1.5);
+                font-weight: 700;
+                color: var(--text-primary);
+                display: block;
+            }
+
+            .profile-stat-label {
+                font-size: calc(var(--font-size-base) * 0.85);
+                color: var(--text-secondary);
+                margin-top: 4px;
+            }
+
+            /* Customization Modal */
+            .customization-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(10px);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 2000;
+                padding: 20px;
+            }
+
+            .customization-modal.active {
+                display: flex;
+            }
+
+            .customization-content {
+                background: var(--secondary-bg);
+                border-radius: 16px;
+                padding: 32px;
+                max-width: 500px;
+                width: 100%;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: var(--shadow-xl);
+            }
+
+            .customization-content h3 {
+                margin-bottom: 20px;
+                color: var(--text-primary);
+            }
+
+            .customization-section {
+                margin-bottom: 24px;
+            }
+
+            .customization-section label {
+                display: block;
+                margin-bottom: 12px;
+                font-weight: 600;
+                color: var(--text-primary);
+            }
+
+            .pattern-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+
+            .pattern-option {
+                height: 80px;
+                border-radius: 12px;
+                cursor: pointer;
+                border: 3px solid transparent;
+                transition: all 0.2s ease;
+                position: relative;
+            }
+
+            .pattern-option:hover {
+                transform: scale(1.05);
+                box-shadow: var(--shadow-md);
+            }
+
+            .pattern-option.selected {
+                border-color: var(--accent-coral);
+                box-shadow: var(--shadow-glow);
+            }
+
+            .pattern-option.selected::after {
+                content: '✓';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: white;
+                font-size: calc(var(--font-size-base) * 2);
+                font-weight: 700;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            }
+
+            .avatar-color-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+
+            .avatar-color-option {
+                width: 100%;
+                aspect-ratio: 1;
+                border-radius: 50%;
+                cursor: pointer;
+                border: 3px solid transparent;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: calc(var(--font-size-base) * 1.5);
+                font-weight: 700;
+                color: white;
+            }
+
+            .avatar-color-option:hover {
+                transform: scale(1.1);
+            }
+
+            .avatar-color-option.selected {
+                border-color: var(--accent-coral);
+                box-shadow: var(--shadow-glow);
+            }
+
+            .modal-actions {
+                display: flex;
+                gap: 12px;
+                margin-top: 24px;
+            }
+
+            .modal-actions button {
+                flex: 1;
+                margin: 0;
+            }
+
+
+
+
+
+        </style>
+
+        <!-- Replace the empty dashboardSection div with this content -->
+        <div id="dashboardSection" class="section">
+            <div class="user-info">
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar" aria-hidden="true"></div>
+                    <div>
+                        <h2>Welcome, <span id="currentUserName"></span>!</h2>
+                        <p id="userBio" style="color: #666; font-size: calc(var(--font-size-base) * 0.875);"></p>
+                    </div>
+                </div>
+                <div>
+                    <button onclick="showProfile()" aria-label="View profile">Profile</button>
+                    <button onclick="logout()" aria-label="Logout">Logout</button>
+                </div>
+            </div>
+
+            <nav class="nav-tabs" role="tablist" aria-label="Main navigation">
+                <button class="nav-tab active" onclick="showFeed()" role="tab" aria-selected="true">
+                    Feed <span id="feedNotifications" class="notification-badge" style="display: none;">0</span>
+                </button>
+                <button class="nav-tab" onclick="showMyGroups()" role="tab" aria-selected="false">My Groups</button>
+                <button class="nav-tab" onclick="showAllGroups()" role="tab" aria-selected="false">Discover</button>
+                <button class="nav-tab" onclick="showCreateGroup()" role="tab" aria-selected="false">Create Group</button>
+            </nav>
+
+            <!-- Add this right after the nav-tabs closing tag -->
+            <div class="stories-container" id="storiesContainer">
+                <div class="stories-wrapper" id="storiesWrapper">
+                    <!-- Stories will be dynamically loaded here -->
+                </div>
+            </div>
+
+
+
+            <!-- Feed View -->
+            <div id="feedView" style="display: none;" role="tabpanel">
+                <div class="feed-container">
+                    <h2>Your Feed</h2>
+                    <div class="search-bar">
+                        <input type="search" id="feedSearch" placeholder="Search posts..." 
+                            onkeyup="filterFeed()" aria-label="Search posts">
+                    </div>
+                    <div class="feed-filters" role="group" aria-label="Feed filters">
+                        <button class="filter-btn active" onclick="filterFeedByType('all')" data-filter="all">All Posts</button>
+                        <button class="filter-btn" onclick="filterFeedByType('myGroups')" data-filter="myGroups">My Groups</button>
+                        <button class="filter-btn" onclick="filterFeedByType('recent')" data-filter="recent">Recent</button>
+                    </div>
+                    <div id="feedContainer" aria-live="polite"></div>
+                </div>
+            </div>
+
+            <!-- My Groups View -->
+            <div id="myGroupsView" style="display: none;" role="tabpanel">
+                <h2>My Groups</h2>
+                <div class="search-bar">
+                    <input type="search" id="groupSearch" placeholder="Search my groups..." 
+                        onkeyup="searchMyGroups()" aria-label="Search my groups">
+                </div>
+                <div id="myGroupsList" aria-live="polite"></div>
+            </div>
+
+            <!-- All Groups View -->
+            <div id="allGroupsView" style="display: none;" role="tabpanel">
+                <h2>Discover Groups</h2>
+                <div class="search-bar">
+                    <input type="search" id="allGroupSearch" placeholder="Search all groups..." 
+                        onkeyup="searchAllGroups()" aria-label="Search all groups">
+                </div>
+                <div id="allGroupsList" aria-live="polite"></div>
+            </div>
+
+            <!-- Create Group View -->
+            <div id="createGroupView" style="display: none;" role="tabpanel">
+                <h2>Create New Group</h2>
+                <form onsubmit="createGroup(event)" aria-label="Create group form">
+                    <div class="form-group">
+                        <label for="groupName">Group Name:</label>
+                        <input type="text" id="groupName" placeholder="Enter group name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="groupDescription">Group Description:</label>
+                        <textarea id="groupDescription" rows="4" placeholder="Describe your group" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="groupCategory">Category:</label>
+                        <select id="groupCategory" aria-label="Select group category">
+                            <option value="general">General</option>
+                            <option value="hobbies">Hobbies & Interests</option>
+                            <option value="professional">Professional</option>
+                            <option value="education">Education</option>
+                            <option value="community">Community</option>
+                        </select>
+                    </div>
+                    <button type="submit">Create Group</button>
+                </form>
+                <div id="groupMessage" class="success-message" role="alert"></div>
+            </div>
+
+            <!-- Group Detail View -->
+            <div id="groupDetailView" style="display: none;" role="tabpanel">
+                <button onclick="showMyGroups()" aria-label="Back to my groups">← Back to My Groups</button>
+                <h2 id="groupDetailName"></h2>
+                <p id="groupDetailDescription"></p>
+                <p id="groupDetailCategory" style="color: #666; font-size: calc(var(--font-size-base) * 0.875);"></p>
+                <div style="margin: 20px 0;">
+                    <strong>Members:</strong> <span id="groupMembers"></span>
+                </div>
+
+                <h3>Discussion Board</h3>
+                <form onsubmit="createPost(event)" aria-label="Create post form">
+                    <div class="form-group">
+                        <textarea id="newPostContent" rows="3" placeholder="Share something with the group..." 
+                                required aria-label="Post content"></textarea>
+                    </div>
+                    <button type="submit">Post</button>
+                </form>
+
+                <div id="postsContainer" style="margin-top: 30px;" aria-live="polite"></div>
+            </div>
+
+            <!-- Profile View -->
+            <!-- Replace the existing profileView div with this enhanced version -->
+            <div id="profileView" style="display: none;" role="tabpanel">
+                <div class="profile-header">
+                    <div class="profile-cover" id="profileCover"></div>
+                    <div class="profile-avatar-large" id="profileAvatarLarge" onclick="openCustomization()"></div>
+                    <button class="profile-edit-btn" onclick="openCustomization()">✏️ Edit Profile</button>
+                </div>
+
+                <div class="profile-info-section">
+                    <h2 id="profileDisplayName"></h2>
+                    <p id="profileDisplayBio" style="color: var(--text-secondary); margin-bottom: 20px;"></p>
+
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <span class="profile-stat-value" id="profileGroupCount">0</span>
+                            <span class="profile-stat-label">Groups</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="profile-stat-value" id="profilePostCount">0</span>
+                            <span class="profile-stat-label">Posts</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="profile-stat-value" id="profileCommentCount">0</span>
+                            <span class="profile-stat-label">Comments</span>
+                        </div>
+                    </div>
+
+                    <h3>Edit Profile Information</h3>
+                    <form onsubmit="updateProfile(event)" aria-label="Update profile form">
+                        <div class="form-group">
+                            <label for="profileName">Full Name:</label>
+                            <input type="text" id="profileName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="profileBio">Bio:</label>
+                            <textarea id="profileBio" rows="4" placeholder="Tell us about yourself"></textarea>
+                        </div>
+                        <button type="submit">Update Profile</button>
+                        <button type="button" onclick="showFeed()">Back to Feed</button>
+                    </form>
+                    <div id="profileMessage" class="success-message" role="alert"></div>
+                </div>
+            </div>
+
+            <!-- Customization Modal -->
+            <div class="customization-modal" id="customizationModal">
+                <div class="customization-content">
+                    <h3>Customize Your Profile</h3>
+
+                    <div class="customization-section">
+                        <label>Cover Photo Pattern</label>
+                        <div class="pattern-grid">
+                            <div class="pattern-option pattern-1" onclick="selectCoverPattern('pattern-1')"></div>
+                            <div class="pattern-option pattern-2" onclick="selectCoverPattern('pattern-2')"></div>
+                            <div class="pattern-option pattern-3" onclick="selectCoverPattern('pattern-3')"></div>
+                            <div class="pattern-option pattern-4" onclick="selectCoverPattern('pattern-4')"></div>
+                            <div class="pattern-option pattern-5" onclick="selectCoverPattern('pattern-5')"></div>
+                            <div class="pattern-option" style="background: var(--gradient-rainbow);" onclick="selectCoverPattern('default')"></div>
+                        </div>
+                    </div>
+
+                    <div class="customization-section">
+                        <label>Avatar Color</label>
+                        <div class="avatar-color-grid">
+                            <div class="avatar-color-option" style="background: linear-gradient(135deg, #667eea, #764ba2);" onclick="selectAvatarColor('gradient-1')">A</div>
+                            <div class="avatar-color-option" style="background: linear-gradient(135deg, #f093fb, #f5576c);" onclick="selectAvatarColor('gradient-2')">A</div>
+                            <div class="avatar-color-option" style="background: linear-gradient(135deg, #4facfe, #00f2fe);" onclick="selectAvatarColor('gradient-3')">A</div>
+                            <div class="avatar-color-option" style="background: linear-gradient(135deg, #43e97b, #38f9d7);" onclick="selectAvatarColor('gradient-4')">A</div>
+                            <div class="avatar-color-option" style="background: linear-gradient(135deg, #fa709a, #fee140);" onclick="selectAvatarColor('gradient-5')">A</div>
+                            <div class="avatar-color-option" style="background: linear-gradient(135deg, #ff6b6b, #ff4d6d);" onclick="selectAvatarColor('gradient-6')">A</div>
+                            <div class="avatar-color-option" style="background: linear-gradient(135deg, #c77dff, #9d4edd);" onclick="selectAvatarColor('gradient-7')">A</div>
+                            <div class="avatar-color-option" style="background: var(--gradient-rainbow);" onclick="selectAvatarColor('default')">A</div>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" onclick="closeCustomization()">Cancel</button>
+                        <button type="button" onclick="saveCustomization()">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+
+            </style>
+        </head>
+        <body>
+            <a href="#main-content" class="skip-link">Skip to main content</a>
+            
+            <div class="accessibility-bar" role="toolbar" aria-label="Accessibility controls">
+                <span>Font Size:</span>
+                <button onclick="changeFontSize('decrease')" aria-label="Decrease font size">A-</button>
+                <button onclick="changeFontSize('reset')" aria-label="Reset font size">A</button>
+                <button onclick="changeFontSize('increase')" aria-label="Increase font size">A+</button>
+            </div>
+
+            <div class="container" id="main-content" role="main">
+                <div id="authSection" class="section active">
+                    <h1>FamConnect</h1>
+                    <div id="loginForm">
+                        <h2>Login</h2>
+                        <form onsubmit="login(event)">
+                            <div class="form-group">
+                                <label for="loginUsername">Username:</label>
+                                <input type="text" id="loginUsername" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="loginPassword">Password:</label>
+                                <input type="password" id="loginPassword" required>
+                            </div>
+                            <button type="submit">Login</button>
+                            <button type="button" onclick="showRegister()">New User? Register</button>
+                        </form>
+                    </div>
+                    <div id="registerForm" style="display: none;">
+                        <h2>Register New Account</h2>
+                        <form onsubmit="register(event)">
+                            <div class="form-group">
+                                <label for="regFullName">Full Name:</label>
+                                <input type="text" id="regFullName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regUsername">Username:</label>
+                                <input type="text" id="regUsername" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regPassword">Password:</label>
+                                <input type="password" id="regPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regBio">Bio (Optional):</label>
+                                <textarea id="regBio" rows="3"></textarea>
+                            </div>
+                            <button type="submit">Register</button>
+                            <button type="button" onclick="showLogin()">Back to Login</button>
+                        </form>
+                    </div>
+                    <div id="authMessage" class="success-message" role="alert"></div>
+                    <div id="authError" class="error-message" role="alert"></div>
+                </div>
+                <div id="dashboardSection" class="section"></div>
+            </div>
+
+<!-- Add this script section before the closing </body> tag -->
+
+        <script>
+            // Initialize data structure
+            let currentUser = null;
+            let currentGroupId = null;
+            let currentFilter = 'all';
+
+            // Initialize LocalStorage
+            function initializeStorage() {
+                if (!localStorage.getItem('users')) {
+                    localStorage.setItem('users', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('groups')) {
+                    localStorage.setItem('groups', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('posts')) {
+                    localStorage.setItem('posts', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('comments')) {
+                    localStorage.setItem('comments', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('likes')) {
+                    localStorage.setItem('likes', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('fontSize')) {
+                    localStorage.setItem('fontSize', '16');
+                }
+                applyFontSize();
+            }
+
+            // Font Size Management
+            function changeFontSize(action) {
+                let currentSize = parseInt(localStorage.getItem('fontSize') || '16');
+                
+                if (action === 'increase' && currentSize < 24) {
+                    currentSize += 2;
+                } else if (action === 'decrease' && currentSize > 12) {
+                    currentSize -= 2;
+                } else if (action === 'reset') {
+                    currentSize = 16;
+                }
+                
+                localStorage.setItem('fontSize', currentSize.toString());
+                applyFontSize();
+            }
+
+            function applyFontSize() {
+                const size = localStorage.getItem('fontSize') || '16';
+                document.documentElement.style.setProperty('--font-size-base', size + 'px');
+            }
+
+            // Authentication Functions
+            function showRegister() {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+            }
+
+            function showLogin() {
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('loginForm').style.display = 'block';
+            }
+
+            function register(event) {
+                event.preventDefault();
+                const fullName = document.getElementById('regFullName').value.trim();
+                const username = document.getElementById('regUsername').value.trim();
+                const password = document.getElementById('regPassword').value.trim();
+                const bio = document.getElementById('regBio').value.trim();
+
+                if (!fullName || !username || !password) {
+                    showError('authError', 'Please fill in all required fields');
+                    return;
+                }
+
+                const users = JSON.parse(localStorage.getItem('users'));
+                
+                if (users.find(u => u.username === username)) {
+                    showError('authError', 'Username already exists');
+                    return;
+                }
+
+                const newUser = {
+                    id: Date.now().toString(),
+                    fullName: fullName,
+                    username: username,
+                    password: password,
+                    bio: bio,
+                    joinedGroups: [],
+                    createdAt: new Date().toISOString()
+                };
+
+                users.push(newUser);
+                localStorage.setItem('users', JSON.stringify(users));
+
+                showMessage('authMessage', 'Information Saved Successfully');
+                setTimeout(() => {
+                    showLogin();
+                    document.getElementById('regFullName').value = '';
+                    document.getElementById('regUsername').value = '';
+                    document.getElementById('regPassword').value = '';
+                    document.getElementById('regBio').value = '';
+                }, 1500);
+            }
+
+            function login(event) {
+                event.preventDefault();
+                const username = document.getElementById('loginUsername').value.trim();
+                const password = document.getElementById('loginPassword').value.trim();
+
+                if (!username || !password) {
+                    showError('authError', 'Please enter username and password');
+                    return;
+                }
+
+                const users = JSON.parse(localStorage.getItem('users'));
+                const user = users.find(u => u.username === username && u.password === password);
+
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('currentUserName').textContent = user.fullName;
+                    document.getElementById('userBio').textContent = user.bio || 'No bio yet';
+                    document.getElementById('userAvatar').textContent = user.fullName.charAt(0).toUpperCase();
+                    showSection('dashboardSection');
+                    showFeed();
+                } else {
+                    showError('authError', 'Invalid username or password');
+                }
+            }
+
+            function logout() {
+                currentUser = null;
+                currentGroupId = null;
+                showSection('authSection');
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+            }
+
+            // Navigation Functions
+            function showFeed() {
+                hideAllViews();
+                document.getElementById('feedView').style.display = 'block';
+                updateNavTabs(0);
+                loadFeed();
+            }
+
+            function showMyGroups() {
+                hideAllViews();
+                document.getElementById('myGroupsView').style.display = 'block';
+                updateNavTabs(1);
+                loadMyGroups();
+            }
+
+            function showAllGroups() {
+                hideAllViews();
+                document.getElementById('allGroupsView').style.display = 'block';
+                updateNavTabs(2);
+                loadAllGroups();
+            }
+
+            function showCreateGroup() {
+                hideAllViews();
+                document.getElementById('createGroupView').style.display = 'block';
+                updateNavTabs(3);
+            }
+
+                        // Profile Functions - CORRECTED VERSION
+            
+            function loadProfileStats() {
+                const groups = JSON.parse(localStorage.getItem('groups'));
+                const posts = JSON.parse(localStorage.getItem('posts'));
+                const comments = JSON.parse(localStorage.getItem('comments'));
+
+                const myGroups = groups.filter(g => g.members.includes(currentUser.id));
+                const myPosts = posts.filter(p => p.authorId === currentUser.id);
+                const myComments = comments.filter(c => c.authorId === currentUser.id);
+
+                document.getElementById('profileGroupCount').textContent = myGroups.length;
+                document.getElementById('profilePostCount').textContent = myPosts.length;
+                document.getElementById('profileCommentCount').textContent = myComments.length;
+            }
+
+            const originalShowProfile = showProfile;
+                showProfile = function() {
+                    originalShowProfile();
+
+                    // Update profile display
+                    document.getElementById('profileDisplayName').textContent = currentUser.fullName;
+                    document.getElementById('profileDisplayBio').textContent = currentUser.bio || 'No bio yet';
+                    document.getElementById('profileAvatarLarge').textContent = currentUser.fullName.charAt(0).toUpperCase();
+
+                    // Load stats
+                    loadProfileStats();
+
+                    // Apply customization
+                    applyProfileCustomization();
+                };
+
+                // Update login to apply customization
+                const originalLoginForCustomization = login;
+                login = function(event) {
+                    originalLoginForCustomization(event);
+                    if (currentUser) {
+                        applyProfileCustomization();
+                    }
+                };
+            
+
+
+            function hideAllViews() {
+                document.getElementById('feedView').style.display = 'none';
+                document.getElementById('myGroupsView').style.display = 'none';
+                document.getElementById('allGroupsView').style.display = 'none';
+                document.getElementById('createGroupView').style.display = 'none';
+                document.getElementById('groupDetailView').style.display = 'none';
+                document.getElementById('profileView').style.display = 'none';
+            }
+
+            function updateNavTabs(activeIndex) {
+                const tabs = document.querySelectorAll('.nav-tab');
+                tabs.forEach((tab, index) => {
+                    if (index === activeIndex) {
+                        tab.classList.add('active');
+                        tab.setAttribute('aria-selected', 'true');
+                    } else {
+                        tab.classList.remove('active');
+                        tab.setAttribute('aria-selected', 'false');
+                    }
+                });
+            }
+
+                        // Profile Customization Functions
+            let selectedCoverPattern = 'default';
+            let selectedAvatarColor = 'default';
+
+            function openCustomization() {
+                const modal = document.getElementById('customizationModal');
+                modal.classList.add('active');
+
+                // Load current settings
+                if (currentUser.coverPattern) {
+                    selectedCoverPattern = currentUser.coverPattern;
+                    highlightSelectedPattern(selectedCoverPattern);
+                }
+                if (currentUser.avatarColor) {
+                    selectedAvatarColor = currentUser.avatarColor;
+                    highlightSelectedAvatar(selectedAvatarColor);
+                }
+            }
+
+            function closeCustomization() {
+                const modal = document.getElementById('customizationModal');
+                modal.classList.remove('active');
+            }
+
+            function selectCoverPattern(pattern) {
+                selectedCoverPattern = pattern;
+                highlightSelectedPattern(pattern);
+            }
+
+            function selectAvatarColor(color) {
+                selectedAvatarColor = color;
+                highlightSelectedAvatar(color);
+            }
+
+            function highlightSelectedPattern(pattern) {
+                document.querySelectorAll('.pattern-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                const selector = pattern === 'default' ?
+                    '.pattern-option[style*="gradient-rainbow"]' :
+                    `.pattern-option.${pattern}`;
+                const selected = document.querySelector(selector);
+                if (selected) selected.classList.add('selected');
+            }
+
+            function highlightSelectedAvatar(color) {
+                document.querySelectorAll('.avatar-color-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                const options = document.querySelectorAll('.avatar-color-option');
+                const colorMap = {
+                    'gradient-1': 0, 'gradient-2': 1, 'gradient-3': 2, 'gradient-4': 3,
+                    'gradient-5': 4, 'gradient-6': 5, 'gradient-7': 6, 'default': 7
+                };
+                if (options[colorMap[color]]) {
+                    options[colorMap[color]].classList.add('selected');
+                }
+            }
+
+            function saveCustomization() {
+                const users = JSON.parse(localStorage.getItem('users'));
+                const userIndex = users.findIndex(u => u.id === currentUser.id);
+
+                users[userIndex].coverPattern = selectedCoverPattern;
+                users[userIndex].avatarColor = selectedAvatarColor;
+
+                localStorage.setItem('users', JSON.stringify(users));
+                currentUser = users[userIndex];
+
+                applyProfileCustomization();
+                closeCustomization();
+                showMessage('profileMessage', 'Information Saved Successfully');
+            }
+
+            function applyProfileCustomization() {
+                const coverElement = document.getElementById('profileCover');
+                const avatarElement = document.getElementById('profileAvatarLarge');
+                const userAvatar = document.getElementById('userAvatar');
+
+                // Apply cover pattern
+                if (currentUser.coverPattern && currentUser.coverPattern !== 'default') {
+                    coverElement.className = `profile-cover ${currentUser.coverPattern}`;
+                } else {
+                    coverElement.className = 'profile-cover';
+                }
+
+                // Apply avatar color
+                const avatarGradients = {
+                    'gradient-1': 'linear-gradient(135deg, #667eea, #764ba2)',
+                    'gradient-2': 'linear-gradient(135deg, #f093fb, #f5576c)',
+                    'gradient-3': 'linear-gradient(135deg, #4facfe, #00f2fe)',
+                    'gradient-4': 'linear-gradient(135deg, #43e97b, #38f9d7)',
+                    'gradient-5': 'linear-gradient(135deg, #fa709a, #fee140)',
+                    'gradient-6': 'linear-gradient(135deg, #ff6b6b, #ff4d6d)',
+                    'gradient-7': 'linear-gradient(135deg, #c77dff, #9d4edd)',
+                    'default': 'var(--gradient-rainbow)'
+                };
+
+                const gradient = avatarGradients[currentUser.avatarColor] || avatarGradients['default'];
+                avatarElement.style.background = gradient;
+                userAvatar.style.background = gradient;
+            }
+
+
+            
+
+            function loadProfileStats() {
+                const groups = JSON.parse(localStorage.getItem('groups'));
+                const posts = JSON.parse(localStorage.getItem('posts'));
+                const comments = JSON.parse(localStorage.getItem('comments'));
+
+                const myGroups = groups.filter(g => g.members.includes(currentUser.id));
+                const myPosts = posts.filter(p => p.authorId === currentUser.id);
+                const myComments = comments.filter(c => c.authorId === currentUser.id);
+
+                document.getElementById('profileGroupCount').textContent = myGroups.length;
+                document.getElementById('profilePostCount').textContent = myPosts.length;
+                document.getElementById('profileCommentCount').textContent = myComments.length;
+            }
+
+            // Update showProfile function
+            
+
+
+                        // Bottom Navigation Functions
+            function bottomNavClick(section) {
+                // Update active state
+                document.querySelectorAll('.bottom-nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                event.currentTarget.classList.add('active');
+
+                // Navigate to section
+                switch(section) {
+                    case 'feed':
+                        showFeed();
+                        break;
+                    case 'discover':
+                        showAllGroups();
+                        break;
+                    case 'create':
+                        showCreateGroup();
+                        break;
+                    case 'groups':
+                        showMyGroups();
+                        break;
+                    case 'profile':
+                        showProfile();
+                        break;
+                }
+            }
+
+            // Update groups badge count
+            function updateGroupsBadge() {
+                const groups = JSON.parse(localStorage.getItem('groups'));
+                const myGroups = groups.filter(g => g.members.includes(currentUser.id));
+                const badge = document.getElementById('groupsBadge');
+
+                if (myGroups.length > 0) {
+                    badge.textContent = myGroups.length;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+
+            // Update the login function to initialize badge
+            const originalLogin = login;
+            login = function(event) {
+                originalLogin(event);
+                if (currentUser) {
+                    updateGroupsBadge();
+                }
+            };
+
+            // Update badge when groups change
+            const originalCreateGroup = createGroup;
+            createGroup = function(event) {
+                originalCreateGroup(event);
+                updateGroupsBadge();
+            };
+
+            const originalJoinGroup = joinGroup;
+            joinGroup = function(groupId) {
+                originalJoinGroup(groupId);
+                updateGroupsBadge();
+            };
+
+
+
+            // Group Functions
+            function createGroup(event) {
+                event.preventDefault();
+                const name = document.getElementById('groupName').value.trim();
+                const description = document.getElementById('groupDescription').value.trim();
+                const category = document.getElementById('groupCategory').value;
+
+                if (!name || !description) {
+                    showError('groupMessage', 'Please fill in all fields');
+                    return;
+                }
+
+                const groups = JSON.parse(localStorage.getItem('groups'));
+                const newGroup = {
+                    id: Date.now().toString(),
+                    name: name,
+                    description: description,
+                    category: category,
+                    creatorId: currentUser.id,
+                    members: [currentUser.id],
+                    createdAt: new Date().toISOString()
+                };
+
+                groups.push(newGroup);
+                localStorage.setItem('groups', JSON.stringify(groups));
+
+                const users = JSON.parse(localStorage.getItem('users'));
+                const userIndex = users.findIndex(u => u.id === currentUser.id);
+                users[userIndex].joinedGroups.push(newGroup.id);
+                localStorage.setItem('users', JSON.stringify(users));
+                currentUser = users[userIndex];
+
+                showMessage('groupMessage', 'Information Saved Successfully');
+                document.getElementById('groupName').value = '';
+                document.getElementById('groupDescription').value = '';
+
+                setTimeout(() => {
+                    showMyGroups();
+                }, 1500);
+            }
+
+            function loadMyGroups() {
+                const groups = JSON.parse(localStorage.getItem('groups'));
+                const myGroups = groups.filter(g => g.members.includes(currentUser.id));
+                const container = document.getElementById('myGroupsList');
+
+                if (myGroups.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📁</div><p>You haven\'t joined any groups yet. Browse all groups or create a new one!</p></div>';
+                    return;
+                }
+
+                container.innerHTML = myGroups.map(group => `
+                    <div class="group-card">
+                        <h3>${group.name}</h3>
+                        <p>${group.description}</p>
+                        <p><strong>Category:</strong> ${group.category}</p>
+                        <p><strong>Members:</strong> ${group.members.length}</p>
+                        <button onclick="viewGroup('${group.id}')">View Group</button>
+                    </div>
+                `).join('');
+            }
+
+            // Story Functions
+            function loadStories() {
+                const groups = JSON.parse(localStorage.getItem('groups'));
+                const posts = JSON.parse(localStorage.getItem('posts'));
+                const users = JSON.parse(localStorage.getItem('users'));
+                const wrapper = document.getElementById('storiesWrapper');
+
+                if (!wrapper) return;
+
+                // Get groups user is member of
+                const myGroupIds = currentUser.joinedGroups;
+                const myGroups = groups.filter(g => myGroupIds.includes(g.id));
+
+                // Get recent posts (last 24 hours) from my groups
+                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                const recentPosts = posts.filter(p =>
+                    myGroupIds.includes(p.groupId) &&
+                    new Date(p.createdAt) > oneDayAgo
+                );
+
+                // Group posts by group
+                const groupActivity = {};
+                recentPosts.forEach(post => {
+                    if (!groupActivity[post.groupId]) {
+                        groupActivity[post.groupId] = [];
+                    }
+                    groupActivity[post.groupId].push(post);
+                });
+
+                // Create story items
+                let storiesHTML = `
+                    <div class="story-item add-story" onclick="showCreateGroup()">
+                        <div class="story-avatar-wrapper">
+                            <div class="story-avatar"></div>
+                        </div>
+                        <div class="story-name">Add Group</div>
+                    </div>
+                `;
+
+                Object.keys(groupActivity).forEach(groupId => {
+                    const group = groups.find(g => g.id === groupId);
+                    const postCount = groupActivity[groupId].length;
+                    const groupInitial = group.name.charAt(0).toUpperCase();
+
+                    storiesHTML += `
+                        <div class="story-item" onclick="viewGroupStory('${groupId}')">
+                            <div class="story-avatar-wrapper">
+                                <div class="story-avatar">
+                                    ${groupInitial}
+                                </div>
+                                <div class="story-badge">${postCount}</div>
+                            </div>
+                            <div class="story-name">${group.name}</div>
+                        </div>
+                    `;
+                });
+
+                // If no recent activity, show all groups
+                if (Object.keys(groupActivity).length === 0) {
+                    myGroups.forEach(group => {
+                        const groupInitial = group.name.charAt(0).toUpperCase();
+                        storiesHTML += `
+                            <div class="story-item" onclick="viewGroup('${group.id}')">
+                                <div class="story-avatar-wrapper">
+                                    <div class="story-avatar viewed">
+                                        ${groupInitial}
+                                    </div>
+                                </div>
+                                <div class="story-name">${group.name}</div>
+                            </div>
+                        `;
+                    });
+                }
+
+                wrapper.innerHTML = storiesHTML;
+            }
+
+            function viewGroupStory(groupId) {
+                viewGroup(groupId);
+            }
+
+            // Update the showFeed function to load stories
+            const originalShowFeed = showFeed;
+            showFeed = function() {
+                originalShowFeed();
+                loadStories();
+            };
+
+
+
+            function loadAllGroups() {
+                const groups = JSON.parse(localStorage.getItem('groups'));
+                const container = document.getElementById('allGroupsList');
+
+                if (groups.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><p>No groups available yet. Be the first to create one!</p></div>';
+                    return;
+                }
+
+                container.innerHTML = groups.map(group => {
+                    const isMember = group.members.includes(currentUser.id);
+                    return `
+                        <div class="group-card">
+                            <h3>${group.name}</h3>
+                            <p>${group.description}</p>
+                            <p><strong>Category:</strong> ${group.category}</p>
+                            <p><strong>Members:</strong> ${group.members.length}</p>
+                            ${isMember ? 
+                                '<button onclick="viewGroup(\'' + group.id + '\')">View Group</button>' :
+                                '<button onclick="joinGroup(\'' + group.id + '\')">Join Group</button>'
+                            }
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function joinGroup(groupId) {
+                const groups = JSON.parse(localStorage.getItem('groups'));
+                const groupIndex = groups.findIndex(g => g.id === groupId);
+                
+                if (!groups[groupIndex].members.includes(currentUser.id)) {
+                    groups[groupIndex].members.push(currentUser.id);
+                    localStorage.setItem('groups', JSON.stringify(groups));
+
+                    const users = JSON.parse(localStorage.getItem('users'));
+                    const userIndex = users.findIndex(u => u.id === currentUser.id);
+                    users[userIndex].joinedGroups.push(groupId);
+                    localStorage.setItem('users', JSON.stringify(users));
+                    currentUser = users[userIndex];
+
+                    loadAllGroups();
+                }
+            }
+
+            function viewGroup(groupId) {
+                currentGroupId = groupId;
+                hideAllViews();
+                document.getElementById('groupDetailView').style.display = 'block';
+                loadGroupDetail();
+            }
+
+            function loadGroupDetail() {
+                const groups = JSON.parse(localStorage.getItem('groups'));
+                const group = groups.find(g => g.id === currentGroupId);
+                const users = JSON.parse(localStorage.getItem('users'));
+
+                document.getElementById('groupDetailName').textContent = group.name;
+                document.getElementById('groupDetailDescription').textContent = group.description;
+                document.getElementById('groupDetailCategory').textContent = `Category: ${group.category}`;
+
+                const memberNames = group.members.map(memberId => {
+                    const user = users.find(u => u.id === memberId);
+                    return `<span class="member-badge">${user.fullName}</span>`;
+                }).join('');
+                document.getElementById('groupMembers').innerHTML = memberNames;
+
+                loadPosts();
+            }
+
+            // Post Functions
+            function createPost(event) {
+                event.preventDefault();
+                const content = document.getElementById('newPostContent').value.trim();
+
+                if (!content) {
+                    return;
+                }
+
+                const posts = JSON.parse(localStorage.getItem('posts'));
+                const newPost = {
+                    id: Date.now().toString(),
+                    groupId: currentGroupId,
+                    authorId: currentUser.id,
+                    content: content,
+                    createdAt: new Date().toISOString()
+                };
+
+                posts.push(newPost);
+                localStorage.setItem('posts', JSON.stringify(posts));
+
+                document.getElementById('newPostContent').value = '';
+                loadPosts();
+                showMessage('groupMessage', 'Information Saved Successfully');
+            }
+
+            function loadPosts() {
+                const posts = JSON.parse(localStorage.getItem('posts'));
+                const groupPosts = posts.filter(p => p.groupId === currentGroupId);
+                const users = JSON.parse(localStorage.getItem('users'));
+                const likes = JSON.parse(localStorage.getItem('likes'));
+                const comments = JSON.parse(localStorage.getItem('comments'));
+                const container = document.getElementById('postsContainer');
+
+                if (groupPosts.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💬</div><p>No posts yet. Be the first to share something!</p></div>';
+                    return;
+                }
+
+                groupPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                container.innerHTML = groupPosts.map(post => {
+                    const author = users.find(u => u.id === post.authorId);
+                    const date = new Date(post.createdAt).toLocaleString();
+                    const postLikes = likes.filter(l => l.postId === post.id);
+                    const isLiked = postLikes.some(l => l.userId === currentUser.id);
+                    const postComments = comments.filter(c => c.postId === post.id);
+                    
+                    return `
+                        <div class="post">
+                            <div class="post-header">
+                                <div class="post-author">
+                                    <div class="post-avatar">${author.fullName.charAt(0).toUpperCase()}</div>
+                                    <div class="post-info">
+                                        <div class="post-author-name">${author.fullName}</div>
+                                        <div class="post-time">${date}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="post-content">${post.content}</div>
+                            <div class="post-actions">
+                                <button class="post-action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}')">
+                                    ❤️ ${postLikes.length} ${postLikes.length === 1 ? 'Like' : 'Likes'}
+                                </button>
+                                <button class="post-action-btn" onclick="toggleComments('${post.id}')">
+                                    💬 ${postComments.length} ${postComments.length === 1 ? 'Comment' : 'Comments'}
+                                </button>
+                            </div>
+                            <div id="comments-${post.id}" class="comments-section" style="display: none;">
+                                <div id="commentsList-${post.id}"></div>
+                                <div class="comment-input">
+                                    <input type="text" id="commentInput-${post.id}" placeholder="Write a comment..." aria-label="Comment input">
+                                    <button onclick="addComment('${post.id}')">Post</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function toggleLike(postId) {
+                const likes = JSON.parse(localStorage.getItem('likes'));
+                const existingLike = likes.findIndex(l => l.postId === postId && l.userId === currentUser.id);
+
+                if (existingLike > -1) {
+                    likes.splice(existingLike, 1);
+                } else {
+                    likes.push({
+                        id: Date.now().toString(),
+                        postId: postId,
+                        userId: currentUser.id,
+                        createdAt: new Date().toISOString()
+                    });
+                }
+
+                localStorage.setItem('likes', JSON.stringify(likes));
+                loadPosts();
+            }
+
+            function toggleComments(postId) {
+                const commentsSection = document.getElementById(`comments-${postId}`);
+                if (commentsSection.style.display === 'none') {
+                    commentsSection.style.display = 'block';
+                    loadComments(postId);
+                } else {
+                    commentsSection.style.display = 'none';
+                }
+            }
+
+            function loadComments(postId) {
+                const comments = JSON.parse(localStorage.getItem('comments'));
+                const postComments = comments.filter(c => c.postId === postId);
+                const users = JSON.parse(localStorage.getItem('users'));
+                const container = document.getElementById(`commentsList-${postId}`);
+
+                if (postComments.length === 0) {
+                    container.innerHTML = '<p style="color: #666; font-size: 0.875rem; padding: 10px 0;">No comments yet. Be the first to comment!</p>';
+                    return;
+                }
+
+                container.innerHTML = postComments.map(comment => {
+                    const author = users.find(u => u.id === comment.authorId);
+                    const date = new Date(comment.createdAt).toLocaleString();
+                    return `
+                        <div class="comment">
+                            <div class="comment-header">
+                                <span class="comment-author">${author.fullName}</span>
+                                <span>${date}</span>
+                            </div>
+                            <div class="comment-content">${comment.content}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function addComment(postId) {
+                const input = document.getElementById(`commentInput-${postId}`);
+                const content = input.value.trim();
+
+                if (!content) return;
+
+                const comments = JSON.parse(localStorage.getItem('comments'));
+                comments.push({
+                    id: Date.now().toString(),
+                    postId: postId,
+                    authorId: currentUser.id,
+                    content: content,
+                    createdAt: new Date().toISOString()
+                });
+
+                localStorage.setItem('comments', JSON.stringify(comments));
+                input.value = '';
+                loadComments(postId);
+                loadPosts();
+            }
+
+            // Feed Functions
+            function loadFeed() {
+                const posts = JSON.parse(localStorage.getItem('posts'));
+                const groups = JSON.parse(localStorage.getItem('groups'));
+                const users = JSON.parse(localStorage.getItem('users'));
+                const likes = JSON.parse(localStorage.getItem('likes'));
+                const comments = JSON.parse(localStorage.getItem('comments'));
+                const container = document.getElementById('feedContainer');
+
+                const myGroupIds = currentUser.joinedGroups;
+                let feedPosts = posts;
+
+                if (currentFilter === 'myGroups') {
+                    feedPosts = posts.filter(p => myGroupIds.includes(p.groupId));
+                } else if (currentFilter === 'recent') {
+                    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                    feedPosts = posts.filter(p => new Date(p.createdAt) > oneDayAgo);
+                }
+
+                if (feedPosts.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📰</div><p>No posts to show. Join some groups to see their posts!</p></div>';
+                    return;
+                }
+
+                feedPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                container.innerHTML = feedPosts.map(post => {
+                    const author = users.find(u => u.id === post.authorId);
+                    const group = groups.find(g => g.id === post.groupId);
+                    const date = new Date(post.createdAt).toLocaleString();
+                    const postLikes = likes.filter(l => l.postId === post.id);
+                    const isLiked = postLikes.some(l => l.userId === currentUser.id);
+                    const postComments = comments.filter(c => c.postId === post.id);
+                    
+                    return `
+                        <div class="post">
+                            <div class="post-header">
+                                <div class="post-author">
+                                    <div class="post-avatar">${author.fullName.charAt(0).toUpperCase()}</div>
+                                    <div class="post-info">
+                                        <div class="post-author-name">${author.fullName} <span style="color: #666; font-weight: normal;">in ${group.name}</span></div>
+                                        <div class="post-time">${date}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="post-content">${post.content}</div>
+                            <div class="post-actions">
+                                <button class="post-action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLikeFeed('${post.id}')">
+                                    ❤️ ${postLikes.length}
+                                </button>
+                                <button class="post-action-btn" onclick="toggleCommentsFeed('${post.id}')">
+                                    💬 ${postComments.length}
+                                </button>
+                                <button class="post-action-btn" onclick="viewGroup('${post.groupId}')">
+                                    View Group
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function toggleLikeFeed(postId) {
+                toggleLike(postId);
+                loadFeed();
+            }
+
+            function toggleCommentsFeed(postId) {
+                // Navigate to the group to see comments
+                const posts = JSON.parse(localStorage.getItem('posts'));
+                const post = posts.find(p => p.id === postId);
+                viewGroup(post.groupId);
+            }
+
+            function filterFeedByType(type) {
+                currentFilter = type;
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                loadFeed();
+            }
+
+            function filterFeed() {
+                const searchTerm = document.getElementById('feedSearch').value.toLowerCase();
+                const posts = document.querySelectorAll('#feedContainer .post');
+                
+                posts.forEach(post => {
+                    const content = post.textContent.toLowerCase();
+                    post.style.display = content.includes(searchTerm) ? 'block' : 'none';
+                });
+            }
+
+            function searchMyGroups() {
+                const searchTerm = document.getElementById('groupSearch').value.toLowerCase();
+                const groups = document.querySelectorAll('#myGroupsList .group-card');
+                
+                groups.forEach(group => {
+                    const content = group.textContent.toLowerCase();
+                    group.style.display = content.includes(searchTerm) ? 'block' : 'none';
+                });
+            }
+
+            function searchAllGroups() {
+                const searchTerm = document.getElementById('allGroupSearch').value.toLowerCase();
+                const groups = document.querySelectorAll('#allGroupsList .group-card');
+                
+                groups.forEach(group => {
+                    const content = group.textContent.toLowerCase();
+                    group.style.display = content.includes(searchTerm) ? 'block' : 'none';
+                });
+            }
+
+            // Profile Functions
+            function updateProfile(event) {
+                event.preventDefault();
+                const fullName = document.getElementById('profileName').value.trim();
+                const bio = document.getElementById('profileBio').value.trim();
+
+                const users = JSON.parse(localStorage.getItem('users'));
+                const userIndex = users.findIndex(u => u.id === currentUser.id);
+                users[userIndex].fullName = fullName;
+                users[userIndex].bio = bio;
+                localStorage.setItem('users', JSON.stringify(users));
+                currentUser = users[userIndex];
+
+                document.getElementById('currentUserName').textContent = fullName;
+                document.getElementById('userBio').textContent = bio || 'No bio yet';
+                document.getElementById('userAvatar').textContent = fullName.charAt(0).toUpperCase();
+
+                showMessage('profileMessage', 'Information Saved Successfully');
+                setTimeout(() => {
+                    showFeed();
+                }, 1500);
+            }
+
+            // Utility Functions
+            function showSection(sectionId) {
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(sectionId).classList.add('active');
+            }
+
+            function showMessage(elementId, message) {
+                const element = document.getElementById(elementId);
+                element.textContent = message;
+                element.style.display = 'block';
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 3000);
+            }
+
+            function showError(elementId, message) {
+                const element = document.getElementById(elementId);
+                element.textContent = message;
+                element.style.display = 'block';
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 3000);
+            }
+
+            // Initialize on page load
+            initializeStorage();
+        </script>
+
+
+        </body>
+        </html>
+
+
+
+
+
+
+
+
+
+
+   
+    
