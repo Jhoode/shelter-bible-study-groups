@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Shelter Bible Study Group Assignment</title>
+  <title>Find My Bible Study Center</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -11,188 +11,407 @@
 
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    body {
+
+    :root{
+      --gold:#f4c15d;
+      --gold2:#d69e2e;
+      --ember:#ff6a00;
+      --deep:#0b0b10;
+      --card:#14131a;
+      --card2:#0f0e14;
+      --muted:rgba(255,255,255,.72);
+    }
+
+    body{
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 15px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      overflow: hidden;
-    }
-    .header {
-      background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%);
-      color: white;
-      padding: 30px 20px;
-      text-align: center;
-      border-bottom: 4px solid #d69e2e;
-    }
-    .header-with-logo { display:flex; flex-direction:column; align-items:center; gap:10px; }
-    .app-logo { max-width:150px; height:auto; }
-    .header h1 { font-size: 2.0em; }
-    .header p { opacity: 0.95; font-style: italic; }
-
-    .content { padding: 30px; }
-    .success-message {
-      display:none;
-      background:#38a169;
+      min-height:100vh;
+      padding: 22px;
       color:#fff;
-      padding:14px 18px;
-      border-radius: 10px;
-      margin-bottom: 18px;
-      font-weight: 600;
+
+      /* Flyer-like fiery background (pure CSS) */
+      background:
+        radial-gradient(1200px 700px at 20% 15%, rgba(255,140,0,.22), transparent 60%),
+        radial-gradient(900px 600px at 85% 25%, rgba(255,70,0,.18), transparent 60%),
+        radial-gradient(900px 900px at 45% 90%, rgba(255,180,80,.10), transparent 60%),
+        linear-gradient(135deg, #120910 0%, #12070e 25%, #0a0a12 70%, #06060b 100%);
+      position:relative;
+      overflow-x:hidden;
+    }
+
+    /* subtle ember specks */
+    body:before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.35;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255,180,80,.35) 0 1px, transparent 2px),
+        radial-gradient(circle at 30% 55%, rgba(255,90,0,.25) 0 1px, transparent 2px),
+        radial-gradient(circle at 70% 25%, rgba(255,210,120,.25) 0 1px, transparent 2px),
+        radial-gradient(circle at 85% 70%, rgba(255,100,0,.20) 0 1px, transparent 2px);
+      background-size: 240px 240px, 280px 280px, 320px 320px, 360px 360px;
+      mix-blend-mode: screen;
+      filter: blur(.1px);
+    }
+
+    .container{
+      max-width: 1100px;
+      margin: 0 auto;
+      border-radius: 18px;
+      overflow:hidden;
+
+      /* glass + glow */
+      background: rgba(10,10,14,.55);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(244,193,93,.25);
+      box-shadow:
+        0 14px 60px rgba(0,0,0,.65),
+        0 0 0 1px rgba(255,120,0,.10) inset,
+        0 0 48px rgba(255,120,0,.10);
+    }
+
+    /* ===== HERO HEADER (flyer vibe) ===== */
+    .header{
+      padding: 22px 18px 10px;
       text-align:center;
+      position:relative;
     }
-    .success-message.show { display:block; }
 
-    .input-section h2 {
-      color:#2d3748;
-      margin-bottom: 18px;
-      font-size: 1.4em;
-      border-bottom: 3px solid #d69e2e;
-      padding-bottom: 8px;
+    .vh-brand{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:12px;
+      margin-bottom: 10px;
     }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display:block; margin-bottom:6px; color:#4a5568; font-weight:600; }
-    .form-group input {
-      width:100%;
-      padding: 12px 14px;
-      border: 2px solid #cbd5e0;
-      border-radius: 8px;
-      font-size: 1em;
-      background:#f7fafc;
+    .vh-logo{
+      height: 58px;
+      width:auto;
+      display:block;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,.5));
     }
-    .form-group input:focus {
-      outline:none;
-      border-color:#2c5282;
-      box-shadow: 0 0 0 3px rgba(44, 82, 130, 0.1);
-      background:#fff;
-    }
-    .input-hint { font-size:0.85em; color:#718096; margin-top:6px; font-style: italic; }
 
-    .row {
+    .hero{
+      padding: 8px 10px 18px;
+    }
+
+    .need-to{
+      font-style: italic;
+      letter-spacing: .12em;
+      text-transform: lowercase;
+      color: rgba(244,193,93,.95);
+      font-size: 1.05rem;
+      margin-bottom: 4px;
+      text-shadow: 0 10px 30px rgba(0,0,0,.55);
+    }
+
+    .hero-title{
+      margin: 0 auto;
+      max-width: 980px;
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: .92;
+
+      /* flyer-ish “bold italic” feel without extra fonts */
+      font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+      transform: skewX(-10deg);
+      font-size: clamp(2.2rem, 5.5vw, 4.3rem);
+
+      color: #fff;
+      text-shadow:
+        0 16px 60px rgba(0,0,0,.75),
+        0 0 32px rgba(255,110,0,.25);
+      letter-spacing: .02em;
+    }
+
+    .hero-sub{
+      margin-top: 10px;
+      color: rgba(255,255,255,.8);
+      font-style: italic;
+      letter-spacing: .04em;
+    }
+
+    .content{ padding: 18px 18px 28px; }
+
+    .success-message{
+      display:none;
+      background: rgba(56,161,105,.92);
+      color:#fff;
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin: 12px 0 18px;
+      font-weight: 700;
+      text-align:center;
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: 0 12px 30px rgba(0,0,0,.45);
+    }
+    .success-message.show{ display:block; }
+
+    /* ===== DARKER FORM PANEL ===== */
+    .input-section{
+      background: linear-gradient(180deg, rgba(20,19,26,.78), rgba(10,10,14,.78));
+      border: 1px solid rgba(244,193,93,.28);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow:
+        0 18px 55px rgba(0,0,0,.55),
+        0 0 0 1px rgba(255,120,0,.08) inset;
+      position: relative;
+    }
+    .input-section:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: 16px;
+      pointer-events:none;
+      background: radial-gradient(600px 120px at 50% 0%, rgba(255,150,60,.16), transparent 65%);
+      opacity:.8;
+    }
+
+    .input-section h2{
+      position:relative;
+      color:#fff;
+      margin-bottom: 14px;
+      font-size: 1.35em;
+      font-weight: 900;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(244,193,93,.35);
+      text-shadow: 0 10px 30px rgba(0,0,0,.55);
+    }
+
+    .row{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
-    @media (max-width: 750px) {
-      .row { grid-template-columns: 1fr; }
+    @media (max-width: 750px){
+      .row{ grid-template-columns: 1fr; }
+      .vh-logo{ height: 50px; }
     }
 
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 10px;
-      font-size: 1.05em;
+    .form-group{ margin-bottom: 14px; position:relative; }
+    .form-group label{
+      display:block;
+      margin-bottom: 6px;
+      color: rgba(255,255,255,.82);
       font-weight: 700;
-      cursor:pointer;
-      transition: all 0.2s;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
     }
-    .btn.primary {
-      background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%);
-      color: white;
-    }
-    .btn.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(44, 82, 130, 0.35); }
-    .btn.secondary {
-      background: #fff;
-      color: #2c5282;
-      border: 2px solid #2c5282;
-    }
-    .btn.secondary:hover { background:#fbd38d; color:#2d3748; border-color:#fbd38d; }
-    .btn.danger {
-      background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
-      color:#fff;
-    }
-    .btn.danger:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(229,62,62,0.35); }
+    .form-group input{
+      width:100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 1em;
 
-    .loading-spinner { display:none; text-align:center; padding: 12px; color:#2c5282; }
-    .loading-spinner.show { display:block; }
-    .spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #2c5282;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.14);
+      color:#fff;
+      box-shadow: 0 8px 18px rgba(0,0,0,.35) inset;
+    }
+    .form-group input::placeholder{ color: rgba(255,255,255,.45); }
+
+    .form-group input:focus{
+      outline:none;
+      border-color: rgba(244,193,93,.55);
+      box-shadow:
+        0 0 0 3px rgba(244,193,93,.15),
+        0 8px 18px rgba(0,0,0,.35) inset;
+    }
+
+    .input-hint{
+      font-size: .85em;
+      color: rgba(255,255,255,.62);
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .btn{
+      width:100%;
+      padding: 14px;
+      border:none;
+      border-radius: 12px;
+      font-size: 1.02em;
+      font-weight: 900;
+      cursor:pointer;
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .btn.primary{
+      background: linear-gradient(135deg, #ffb34a 0%, #ff6a00 55%, #d63800 100%);
+      color:#1a0f07;
+      box-shadow: 0 14px 30px rgba(0,0,0,.45);
+    }
+    .btn.primary:hover{
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+      box-shadow: 0 18px 38px rgba(0,0,0,.55);
+    }
+
+    .btn.danger{
+      background: linear-gradient(135deg, #b31212 0%, #6f0b0b 100%);
+      color:#fff;
+      box-shadow: 0 14px 30px rgba(0,0,0,.45);
+    }
+    .btn.danger:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 18px 38px rgba(0,0,0,.55);
+    }
+
+    .btn.secondary{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(244,193,93,.35);
+      color: rgba(255,255,255,.9);
+    }
+    .btn.secondary:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 18px 38px rgba(0,0,0,.45);
+    }
+
+    .loading-spinner{
+      display:none;
+      text-align:center;
+      padding: 12px;
+      color: rgba(255,255,255,.85);
+    }
+    .loading-spinner.show{ display:block; }
+    .spinner{
+      border: 3px solid rgba(255,255,255,.18);
+      border-top: 3px solid rgba(244,193,93,.95);
       border-radius: 50%;
-      width: 28px; height: 28px;
+      width: 28px;
+      height: 28px;
       animation: spin 1s linear infinite;
       margin: 0 auto 8px;
     }
-    @keyframes spin { 0%{ transform:rotate(0deg);} 100%{ transform:rotate(360deg);} }
+    @keyframes spin{ 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
 
-    .group-display {
+    /* ===== RESULT CARD (keep your logic, just style) ===== */
+    .group-display{
       display:none;
-      background: linear-gradient(135deg, #2c5282 0%, #2a4365 100%);
-      color:#fff;
-      padding: 22px;
-      border-radius: 12px;
-      margin-top: 22px;
-      box-shadow: 0 8px 24px rgba(44,82,130,0.28);
+      margin-top: 18px;
+      background: linear-gradient(180deg, rgba(20,19,26,.70), rgba(10,10,14,.80));
+      border-radius: 16px;
+      padding: 18px;
+      border: 1px solid rgba(244,193,93,.25);
+      box-shadow: 0 18px 55px rgba(0,0,0,.55);
     }
-    .group-display.show { display:block; }
-    .group-display h3 { text-align:center; margin-bottom: 14px; border-bottom: 2px solid #d69e2e; padding-bottom: 12px; }
-    .group-info { background: rgba(255,255,255,0.14); padding: 18px; border-radius: 10px; }
-    .group-assignment-statement {
-      font-size: 1.2em;
-      color:#fbd38d;
-      font-weight: 800;
+    .group-display.show{ display:block; }
+
+    .group-display h3{
       text-align:center;
-      margin: 16px 0;
-      padding: 14px;
-      background: rgba(251,211,141,0.18);
-      border-radius: 10px;
-      border: 2px solid #fbd38d;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(244,193,93,.35);
+      color:#fff;
+      text-shadow: 0 10px 30px rgba(0,0,0,.55);
     }
-    .meeting-location {
-      background: rgba(251, 211, 141, 0.18);
+
+    .group-info{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    .group-assignment-statement{
+      font-size: 1.2em;
+      color: var(--gold);
+      font-weight: 900;
+      text-align:center;
+      margin: 14px 0;
       padding: 14px;
-      border-radius: 10px;
+      background: rgba(244,193,93,.08);
+      border-radius: 12px;
+      border: 1px solid rgba(244,193,93,.35);
+    }
+
+    .meeting-location{
+      background: rgba(244,193,93,.08);
+      padding: 14px;
+      border-radius: 12px;
       margin-top: 12px;
-      border: 2px solid #fbd38d;
+      border: 1px solid rgba(244,193,93,.25);
+      color: rgba(255,255,255,.9);
     }
-    .meeting-location h4 {
-      color:#fbd38d;
+
+    .meeting-location h4{
+      color: var(--gold);
       display:flex;
       gap:8px;
       align-items:center;
       margin-bottom: 8px;
     }
 
-    .members-list { margin-top: 18px; border-top: 2px solid rgba(255,255,255,0.25); padding-top: 14px; }
-    .member-item {
-      background: rgba(255,255,255,0.2);
+    .members-list{
+      margin-top: 16px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      padding-top: 12px;
+    }
+    .member-item{
+      background: rgba(255,255,255,.06);
       padding: 10px 12px;
-      border-radius: 6px;
-      margin-bottom: 8px;
-      border-left: 4px solid #d69e2e;
-    }
-
-    .distance-info {
-      margin-top: 14px;
-      background: rgba(255,255,255,0.15);
-      padding: 12px;
       border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.2);
+      margin-bottom: 8px;
+      border-left: 4px solid rgba(244,193,93,.65);
     }
 
-    #map { height: 480px; width:100%; border-radius: 10px; margin-top: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-    .section { margin-top: 30px; padding-top: 20px; border-top: 3px solid #e2e8f0; }
-    .section h3 { text-align:center; color:#2d3748; margin-bottom: 14px; }
+    .distance-info{
+      margin-top: 12px;
+      background: rgba(255,255,255,.06);
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .section{
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+    .section h3{
+      text-align:center;
+      color:#fff;
+      margin-bottom: 12px;
+      text-shadow: 0 10px 30px rgba(0,0,0,.55);
+    }
+
+    #map{
+      height: 480px;
+      width:100%;
+      border-radius: 14px;
+      margin-top: 12px;
+      box-shadow: 0 18px 55px rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    /* Leaflet popup tweak so it fits theme */
+    .leaflet-popup-content-wrapper{
+      background: rgba(12,12,16,.95);
+      color:#fff;
+      border: 1px solid rgba(244,193,93,.25);
+    }
+    .leaflet-popup-tip{ background: rgba(12,12,16,.95); }
   </style>
 </head>
 
 <body>
   <div class="container">
+
     <div class="header">
-      <div class="header-with-logo">
-        <img src="logo.png" alt="The Shelter Logo" class="app-logo" />
-        <h1>✝️ The Shelter Bible Study</h1>
-        <p>Group Assignment - Illinois Region</p>
+      <div class="vh-brand">
+        <!-- ✅ Put your logo file in the same folder as index.html -->
+        <img src="vh-chicago.png" alt="Victory House Chicago" class="vh-logo" />
+      </div>
+
+      <div class="hero">
+        <div class="need-to">need to</div>
+        <div class="hero-title">FIND MY<br/>BIBLE STUDY<br/>CENTER</div>
+        <div class="hero-sub">The Shelter Bible Study • Illinois Region</div>
       </div>
     </div>
 
@@ -252,7 +471,7 @@
           <div id="meetingLocationContainer"></div>
 
           <div class="members-list">
-            <h4 style="color:#fbd38d;">👥 Your Group Members:</h4>
+            <h4 style="color:var(--gold);">👥 Your Group Members:</h4>
             <div id="membersContainer"></div>
           </div>
 
@@ -287,7 +506,6 @@
 
     // ============================================================
     // MEETING CENTERS
-    // (If any coordinate is wrong/missing, the app safely skips it.)
     // ============================================================
     const groupLocations = {
       "Sabaoth": {
@@ -319,7 +537,7 @@
     // ============================================================
     // STATE
     // ============================================================
-    let allPeople = []; // normalized objects from sheet
+    let allPeople = [];
     let map = null;
     let memberMarkers = [];
     let meetingMarkers = [];
@@ -418,20 +636,17 @@
     }
 
     // ============================================================
-    // CENTRAL API (Apps Script)
+    // CENTRAL API
     // ============================================================
     async function apiSaveMember(person) {
       if (!API_URL || API_URL.includes("PASTE_YOUR")) {
         throw new Error("API_URL is not set. Paste your Apps Script Web App URL into API_URL.");
       }
-
-      // Use text/plain to avoid CORS preflight headaches
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(person),
       });
-
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data.error || "Failed to save member to central sheet.");
       return data;
@@ -441,11 +656,9 @@
       if (!API_URL || API_URL.includes("PASTE_YOUR")) {
         throw new Error("API_URL is not set. Paste your Apps Script Web App URL into API_URL.");
       }
-
       const url = `${API_URL}?action=members&key=${encodeURIComponent(ADMIN_KEY)}`;
       const res = await fetch(url);
       const data = await res.json().catch(() => ({}));
-
       if (!res.ok || !data.ok) throw new Error(data.error || "Failed to fetch members from central sheet.");
       return data.rows || [];
     }
@@ -470,11 +683,9 @@
       }
     }
 
-    // Optional: if you ever set a center coord as null, we can geocode it once & cache it.
     async function hydrateMeetingCenterCoordsOnce() {
       let cache = {};
       try { cache = JSON.parse(localStorage.getItem(STORAGE_KEY_CENTER_CACHE) || "{}"); } catch { cache = {}; }
-
       let changed = false;
 
       for (const groupName in groupLocations) {
@@ -490,13 +701,9 @@
           const cacheKey = `${groupName}::${addr}`;
           if (cache[cacheKey]) {
             const c = normalizeCoords(cache[cacheKey]);
-            if (c) {
-              g.coordinates[i] = c;
-              continue;
-            }
+            if (c) { g.coordinates[i] = c; continue; }
           }
 
-          // Only geocode if coordinate is missing/invalid
           const c = await geocodeAddress(addr);
           if (c) {
             g.coordinates[i] = c;
@@ -512,7 +719,7 @@
     }
 
     // ============================================================
-    // GROUP ASSIGNMENT (Nearest meeting center)
+    // GROUP ASSIGNMENT
     // ============================================================
     function findNearestGroup(userCoordinatesRaw) {
       const userCoordinates = normalizeCoords(userCoordinatesRaw);
@@ -547,16 +754,10 @@
       };
     }
 
-    // ============================================================
-    // NORMALIZE SHEET ROWS -> APP OBJECTS
-    // (Matches your sheet columns like: firstName,lastName,phone,location,zipCode,group,groupAddress,distanceToGroup,lat,lon,timestamp)
-    // ============================================================
     function normalizeMembersFromSheet(rows) {
       return (rows || []).map((m) => {
         const lat = Number(m.lat);
         const lon = Number(m.lon);
-
-        // Some scripts name this distanceToGroup or distanceMiles or distanceToGroupMiles etc.
         const d1 = Number(m.distanceToGroup);
         const d2 = Number(m.distanceMiles);
         const distance = Number.isFinite(d1) ? d1 : (Number.isFinite(d2) ? d2 : null);
@@ -601,7 +802,7 @@
 
       const marker = L.circleMarker([c.lat, c.lon], {
         radius: 8,
-        fillColor: "#2c5282",
+        fillColor: "#ff7a10",
         color: "#fff",
         weight: 2,
         opacity: 1,
@@ -632,7 +833,7 @@
           const marker = L.marker([coord.lat, coord.lon], {
             icon: L.divIcon({
               className: "meeting-center",
-              html: `<div style="background:#d69e2e;color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3)">⭐</div>`,
+              html: `<div style="background:rgba(244,193,93,.95);color:#1a0f07;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid rgba(255,255,255,.9);box-shadow:0 6px 18px rgba(0,0,0,.45)">⭐</div>`,
               iconSize: [30, 30]
             })
           }).addTo(map);
@@ -669,7 +870,6 @@
 
     function refreshMapFromState() {
       if (allPeople.length === 0) return;
-
       document.getElementById("mapSection").style.display = "block";
       initMap();
 
@@ -685,11 +885,11 @@
     // ============================================================
     function renderWelcome(person) {
       const welcomeHTML = `
-        <div style="font-size:1.1em; line-height:1.6;">
+        <div style="font-size:1.1em; line-height:1.6; color:rgba(255,255,255,.92);">
           <strong>Hi ${escapeHtml(person.firstName)},</strong><br>
           Thank you for registering 🙏<br><br>
           Based on the location provided, you belong to group
-          <strong style="color:#fbd38d;">${escapeHtml(person.group)}</strong>.
+          <strong style="color:var(--gold);">${escapeHtml(person.group)}</strong>.
         </div>
       `;
       document.getElementById("welcomeBlock").innerHTML = welcomeHTML;
@@ -714,24 +914,20 @@
     function renderMembersBlock(person, groupMembers) {
       const membersContainer = document.getElementById("membersContainer");
 
-      // Order by timestamp (oldest first) so "You're the nth" makes sense
       const sorted = [...groupMembers].sort((a, b) => (a.timestamp || "").localeCompare(b.timestamp || ""));
       const meIndex = sorted.findIndex((m) => m.timestamp === person.timestamp && m.firstName === person.firstName && m.lastName === person.lastName);
 
-      const myPosition = meIndex >= 0 ? meIndex + 1 : sorted.length; // fallback
+      const myPosition = meIndex >= 0 ? meIndex + 1 : sorted.length;
       const total = sorted.length;
-
-      // "Other members" list (exclude me)
       const others = sorted.filter((m, idx) => idx !== meIndex);
 
-      // Keep it lightweight: show up to 20 others
       const MAX_OTHERS = 20;
       const shown = others.slice(0, MAX_OTHERS);
 
       const header = `
-        <div class="member-item" style="border-left-color:#38a169;">
+        <div class="member-item" style="border-left-color:rgba(56,161,105,.95);">
           <strong>You’re the ${escapeHtml(ordinal(myPosition))} member</strong> in this group ✅<br>
-          <small>Total members in your group: ${escapeHtml(total)}</small>
+          <small style="color:rgba(255,255,255,.75);">Total members in your group: ${escapeHtml(total)}</small>
         </div>
       `;
 
@@ -740,16 +936,16 @@
         listHTML = `<div class="member-item">No other members yet. 🎉</div>`;
       } else {
         listHTML = `
-          <div class="member-item" style="border-left-color:#d69e2e;">
+          <div class="member-item" style="border-left-color:rgba(244,193,93,.95);">
             <strong>Other members in your group include:</strong>
           </div>
           ${shown.map((m) => `
             <div class="member-item">
               ${escapeHtml(m.firstName)} ${escapeHtml(m.lastName)}
-              ${m.phone ? `<br><small>📞 ${escapeHtml(formatPhone(m.phone))}</small>` : ""}
+              ${m.phone ? `<br><small style="color:rgba(255,255,255,.75);">📞 ${escapeHtml(formatPhone(m.phone))}</small>` : ""}
             </div>
           `).join("")}
-          ${others.length > MAX_OTHERS ? `<div class="member-item"><small>…and ${escapeHtml(others.length - MAX_OTHERS)} more.</small></div>` : ""}
+          ${others.length > MAX_OTHERS ? `<div class="member-item"><small style="color:rgba(255,255,255,.75);">…and ${escapeHtml(others.length - MAX_OTHERS)} more.</small></div>` : ""}
         `;
       }
 
@@ -762,7 +958,6 @@
       renderWelcome(person);
       renderMeeting(person);
 
-      // Members are based on the latest allPeople (from sheet)
       const groupMembers = allPeople.filter((p) => p.group === person.group);
       renderMembersBlock(person, groupMembers);
 
@@ -824,7 +1019,6 @@
         timestamp: new Date().toISOString()
       };
 
-      // 1) Save to sheet
       try {
         showSpinner("Saving your registration...");
         await apiSaveMember(person);
@@ -834,7 +1028,6 @@
         hideSpinner();
         alert("Central save failed. We’ll show local fallback, but please try again later.\n\n" + err.message);
 
-        // fallback display using local cache only
         allPeople = loadLocalFallback();
         allPeople.push(person);
         saveLocalFallback();
@@ -843,7 +1036,6 @@
         return;
       }
 
-      // 2) Refresh from sheet so member counts are always correct
       try {
         showSpinner("Loading latest group members...");
         const rows = await apiFetchMembers();
@@ -851,15 +1043,12 @@
         saveLocalFallback();
       } catch (err) {
         console.warn("Central refresh failed; using local fallback:", err);
-        // fallback to local (still include person)
         allPeople = loadLocalFallback();
         allPeople.push(person);
         saveLocalFallback();
       }
 
       hideSpinner();
-
-      // 3) Display results (using latest allPeople)
       displayGroupAssignment(person);
       refreshMapFromState();
     }
@@ -892,15 +1081,12 @@
     // INIT
     // ============================================================
     document.addEventListener("DOMContentLoaded", async () => {
-      // Bind events
       document.getElementById("userForm").addEventListener("submit", handleSubmit);
       document.getElementById("addAnotherBtn").addEventListener("click", handleAddAnother);
       document.getElementById("resetBtn").addEventListener("click", handleReset);
 
-      // Try to hydrate any missing meeting center coordinates (safe, cached)
       try { await hydrateMeetingCenterCoordsOnce(); } catch {}
 
-      // Preload data from sheet (optional). If it fails, use local fallback.
       const fallback = loadLocalFallback();
       if (fallback.length > 0) {
         allPeople = fallback.map(p => ({ ...p, coordinates: normalizeCoords(p.coordinates) }));
@@ -924,4 +1110,3 @@
   </script>
 </body>
 </html>
-
